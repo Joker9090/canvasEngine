@@ -1,0 +1,103 @@
+uris = {
+  "b_logs"   : "/html/public/scripts/libs/b_logs/b_logs.js",
+  "b_canvas" : "/html/public/scripts/libs/b_canvas/b_canvas.js",
+  "b_canvasObjects" : "/html/public/scripts/libs/b_canvas/b_canvasObjects.js",
+  "b_canvasEvents"  : "/html/public/scripts/libs/b_canvas/b_canvasEvents.js",
+};
+
+extraScript.setUrls(uris);
+extraScript.callScript("b_logs",start);
+
+function start(){
+  //handleResizeFunctions
+  window.doInResizeFunctions = [];
+  window.onresize = function(){
+    function _doInResizeFunctions(fs){
+      for (var i = 0; i < fs.length; i++) { fs[i](); }
+    }
+    if(doInResizeFunctions.length > 0) _doInResizeFunctions(doInResizeFunctions);
+  };
+  doInResizeFunctions[doInResizeFunctions.length] = makeContentGoodAgain
+  makeContentGoodAgain();
+  var socket = io();
+  socket.on('/start', function(){
+    console.slog("Socket io On");
+  });
+
+  extraScript.callAsyncScript(["b_canvas","b_canvasObjects","b_canvasEvents"],function(){
+    console.clog("Correctly Load Scripts libs");
+
+    CC = new CanvasController(document.getElementById("canvas"))
+    CC.showFps = true;
+
+    OBJ_MANAGER = new CanvasObjects(CC.canvas);
+    MAP = OBJ_MANAGER.createMap("Bosque");
+    MAP.setType("image");
+    MAP.setImgSrc("html/public/img/background.png")
+
+    MAP.setViewportY(200);
+    MAP.setViewportX(200);
+
+    MAP2 = OBJ_MANAGER.createMap("Bosque2");
+    MAP2.setType("image");
+    MAP2.setImgSrc("html/public/img/background.png")
+
+    MAP2.setViewportY(200);
+    MAP2.setViewportX(200);
+
+    CC.objectsToDraw = OBJ_MANAGER.getAllObjects;
+
+    o_god_options = {
+      name: 'god'
+    }
+
+    o_god = OBJ_MANAGER.createObject(o_god_options);
+    OBJ_MANAGER.setFocus(o_god);
+
+    o_person_options = {
+      name: 'person',
+      width: 50,
+      height: 100,
+      posX: 200,
+      posY: 0
+    }
+
+    o_person = OBJ_MANAGER.createObject(o_person_options);
+    o_person.draw = function(){
+        CC.canvas.ctx.fillRect(o_person.drawPosX(), o_person.drawPosY(), o_person.width, o_person.height);
+    }
+
+    CE = new CanvasEvents(document.getElementById("canvas"));
+
+    left =  { keyCode  : 37, function : leftMove, delay : 20 }
+    right = { keyCode  : 39, function : rightMove, delay : 20 }
+
+    function leftMove() {
+      o_god.setPosX(o_god.posX - 1);
+      MAP.setPosX(MAP.posX-0.3);
+    }
+
+    function rightMove() {
+      o_god.setPosX(o_god.posX + 1);
+      MAP.setPosX(MAP.posX+0.3);
+    }
+
+    CE.addKeyEvent(left);
+    CE.addKeyEvent(right);
+
+
+  });
+
+
+}
+
+function makeContentGoodAgain() {
+  footer = document.getElementById("footer");
+  ctn = document.getElementById("content");
+  header = document.getElementById("header");
+  newCtnHeight = window.innerHeight - (footer.offsetHeight+header.offsetHeight)
+  ctn.setAttribute("style","height:"+newCtnHeight+"px");
+  if(ctn.offsetHeight+header.offsetHeight > window.innerHeight) {
+    footer.setAttribute("class","")
+  }else{ footer.setAttribute("class","pushedBot") }
+}
