@@ -59,12 +59,29 @@ function start(){
       width: 50,
       height: 100,
       posX: 200,
-      posY: 0
+      posY: 0,
+      layer: 1
     }
 
     o_person = OBJ_MANAGER.createObject(o_person_options);
     o_person.draw = function(){
         CC.canvas.ctx.fillRect(o_person.drawPosX(), o_person.drawPosY(), o_person.width, o_person.height);
+    }
+
+    o_black_person_options = {
+      name: 'BlackPerson',
+      width: 150,
+      height: 80,
+      posX: 100,
+      posY: 0,
+      layer: 0
+    }
+
+    o_black_person = OBJ_MANAGER.createObject(o_black_person_options);
+    o_black_person.draw = function(){
+        CC.canvas.ctx.fillStyle = "white";
+        CC.canvas.ctx.fillRect(o_black_person.drawPosX(), o_black_person.drawPosY(), o_black_person.width, o_black_person.height);
+        CC.canvas.ctx.fillStyle = "black";
     }
 
     CE = new CanvasEvents(document.getElementById("canvas"));

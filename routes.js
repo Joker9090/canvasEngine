@@ -4,7 +4,7 @@ module.exports = {
     controllers = o.controllers; // seteo del objeto controller
   },
   makeRoute: function(req, res){
-    console.log(req)
+    // console.log(req)
     console.slog("Armando ruta " + req.method + " " + req.originalUrl)
     switch (req.originalUrl) {
       case "/":

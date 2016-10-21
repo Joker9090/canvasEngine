@@ -3,15 +3,29 @@ CanvasObjects = function(canvas){
   co_self._mapsimageTotals = -1
   co_self.canvas = canvas;
   co_self.imgs = Array();
-  co_self.objects = Array();
+
+  co_self.objectsByLayer = Array();
+
   co_self.focusEnabled = false;
   co_self.focusedObject = {};
-  co_self.getAllObjects = function(){ return co_self.objects; }
+  co_self.getAllObjects = function(){
+    newObjectList = Array();
+    for (var i = 0; i < co_self.objectsByLayer.length; i++) {
+      newObjectList = newObjectList.concat(co_self.objectsByLayer[i])
+    }
+    return newObjectList;
+   }
   co_self.createMap = function(name){
     co_self._mapsimageTotals++;
     cm_obj = {
       id : co_self._mapsimageTotals,
       type : "map",
+      layer: 0,
+      setLayer: function(v){
+        co_self.objectsByLayer[v][co_self.objectsByLayer[v].length] = this;
+        co_self.removeFromLayers(this.layer,this.id);
+        this.layer = v;
+      },
       name : (typeof name == undefined ) ? "map" : name,
       visible : true,
       width : co_self.canvas.c.width,
@@ -69,13 +83,18 @@ CanvasObjects = function(canvas){
       }
     };
     cm_obj = (typeof name == "object") ? co_self.mergeObjects(name,cm_obj) : cm_obj;
-    co_self.objects[cm_obj.id] = cm_obj;
+    if(typeof co_self.objectsByLayer[cm_obj.layer] == "undefined"){
+      co_self.objectsByLayer[cm_obj.layer] = Array();
+    }
+    co_self.objectsByLayer[cm_obj.layer][co_self.objectsByLayer[cm_obj.layer].length] = cm_obj;
+
     return cm_obj;
   }
 
   co_self.getObjectById = function(id){
-    for (var i = 0; i < co_self.objects.length; i++) {
-      if((co_self.objects[i] != undefined ) && co_self.objects[i].id == id) return co_self.objects[i]
+    o = co_self.getAllObjects();
+    for (var i = 0; i < o.length; i++) {
+      if((o[i] != undefined ) && o[i].id == id) return o[i]
     }
 
   }
@@ -97,6 +116,12 @@ CanvasObjects = function(canvas){
       focus: "",
       id: co_self._mapsimageTotals,
       img: "",
+      layer: 0,
+      setLayer: function(v){
+        co_self.objectsByLayer[v][co_self.objectsByLayer[v].length] = this;
+        co_self.removeFromLayers(this.layer,this.id);
+        this.layer = v;
+      },
       sprite: "",
       events: "",
       startPosX: 0,
@@ -118,10 +143,14 @@ CanvasObjects = function(canvas){
       endSpriteX: "",
       endSpriteY: ""
     }
-
-
     _object = (typeof type == "object") ? co_self.mergeObjects(type,_object) : _object;
-    co_self.objects[_object.id] = _object;
+
+    if(typeof co_self.objectsByLayer[_object.layer] == "undefined"){
+      co_self.objectsByLayer[_object.layer] = Array();
+    }
+    co_self.objectsByLayer[_object.layer][co_self.objectsByLayer[_object.layer].length] = _object;
+
+
     _object.startPosX = _object.posX
     _object.startPosY = _object.posY
     return _object;
@@ -134,16 +163,24 @@ CanvasObjects = function(canvas){
     return c;
   }
 
+
+  co_self.removeFromLayers = function(l,id){
+    for (var i = 0; i < co_self.objectsByLayer[l].length; i++) {
+      if(co_self.objectsByLayer[l][i].id == id) co_self.objectsByLayer[l][i].remove();
+    }
+
+  }
   co_self.setFocus = function(obj){
+    o = co_self.getAllObjects()
     co_self.focusEnabled = true;
-    for (var i = 0; i < co_self.objects.length; i++) {
-      if((co_self.objects[i].id == obj.id)){
-        co_self.objects[i].focus = true;
+    for (var i = 0; i < o.length; i++) {
+      if((o[i].id == obj.id)){
+        o[i].focus = true;
         co_self.focusedObject = obj;
-        co_self.objects[i].focusPosX = co_self.objects[i].posX;
-        co_self.objects[i].focusPosY = co_self.objects[i].posY
+        o[i].focusPosX = o[i].posX;
+        o[i].focusPosY = o[i].posY
       }else{
-        co_self.objects[i].focus = false;
+        o[i].focus = false;
       }
     }
   }
