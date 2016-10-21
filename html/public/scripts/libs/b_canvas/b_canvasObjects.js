@@ -55,6 +55,16 @@ CanvasObjects = function(canvas){
         }
       },
       setType : function(type){ this.mapType = type; this.draw = this.makeDrawFunction(type); },
+      mapObjects: [],
+      addObject: function(obj){
+        if(obj instanceof Array){
+          for (var i = 0; i < obj.length; i++) {
+            this.mapObjects[this.mapObjects.length] = obj[i];
+          }
+        }else{
+          this.mapObjects[this.mapObjects.length] = obj;
+        }
+      },
       img: "",
       imgSrc: "",
       loadImg : function(fn){
@@ -80,6 +90,11 @@ CanvasObjects = function(canvas){
           this.height
           );
         }
+      },
+      drawWithObjects : function(){
+        for (var i = 0; i < this.mapObjects.length; i++) {
+          if(typeof this.mapObjects[i].draw == "function") this.mapObjects[i].draw()
+        }
       }
     };
     cm_obj = (typeof name == "object") ? co_self.mergeObjects(name,cm_obj) : cm_obj;
@@ -99,10 +114,6 @@ CanvasObjects = function(canvas){
 
   }
 
-  co_self.drawWithObjects = function(){
-    // console.log(1)
-  }
-
   co_self.fixHeightInvert = function(y,h){
     return co_self.canvas.c.height - y - h
   };
@@ -113,7 +124,7 @@ CanvasObjects = function(canvas){
       setPosX : function(val){ this.posX = val; },
       setPosY : function(val){ this.posY = val; },
       name: "",
-      focus: "",
+      focus: false,
       id: co_self._mapsimageTotals,
       img: "",
       layer: 0,
@@ -128,10 +139,21 @@ CanvasObjects = function(canvas){
       startPosY: 0,
       posX: 0,
       posY: 0,
-      drawPosX: function(){
-        return (co_self.focusEnabled) ? this.posX - co_self.focusedObject.posX + co_self.focusedObject.startPosX : this.posX;
+      drawPosX: function(mapX){
+        if(this.type == "mapObject") return this.posX - mapX
+        if(this.type == "mapObjectFocus"){
+          mapX = (typeof mapX == "undefined") ? 1 : mapX
+          return (co_self.focusEnabled ) ? (this.posX - co_self.focusedObject.posX + co_self.focusedObject.startPosX)*mapX : (this.posX)*mapX;
+
+        }
+        return (co_self.focusEnabled ) ? this.posX - co_self.focusedObject.posX + co_self.focusedObject.startPosX : this.posX;
       },
-      drawPosY: function(){
+      drawPosY: function(mapY){
+        if(this.type == "mapObject") return co_self.fixHeightInvert(this.posY - mapY,this.height)
+        if(this.type == "mapObjectFocus") {
+          mapY = (typeof mapY == "undefined") ? 1 : mapY
+           return (co_self.focusEnabled) ? co_self.fixHeightInvert(this.posY - co_self.focusedObject.posY + co_self.focusedObject.startPosY,this.height)*mapY :  co_self.fixHeightInvert(this.posY,this.height)*mapY;
+        }
         return (co_self.focusEnabled) ? co_self.fixHeightInvert(this.posY - co_self.focusedObject.posY + co_self.focusedObject.startPosY,this.height) :  co_self.fixHeightInvert(this.posY,this.height);
       },
       focusPosX: 0,
@@ -143,13 +165,14 @@ CanvasObjects = function(canvas){
       endSpriteX: "",
       endSpriteY: ""
     }
+
     _object = (typeof type == "object") ? co_self.mergeObjects(type,_object) : _object;
-
-    if(typeof co_self.objectsByLayer[_object.layer] == "undefined"){
-      co_self.objectsByLayer[_object.layer] = Array();
+    if(_object.type != 'mapObject' || _object.type != 'mapObjectFocus'){
+      if(typeof co_self.objectsByLayer[_object.layer] == "undefined"){
+        co_self.objectsByLayer[_object.layer] = Array();
+      }
+      co_self.objectsByLayer[_object.layer][co_self.objectsByLayer[_object.layer].length] = _object;
     }
-    co_self.objectsByLayer[_object.layer][co_self.objectsByLayer[_object.layer].length] = _object;
-
 
     _object.startPosX = _object.posX
     _object.startPosY = _object.posY

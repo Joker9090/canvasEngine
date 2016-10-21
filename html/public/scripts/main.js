@@ -34,16 +34,37 @@ function start(){
     MAP = OBJ_MANAGER.createMap("Bosque");
     MAP.setType("image");
     MAP.setImgSrc("html/public/img/background.png")
-
+    MAP.setPosX(100);
     MAP.setViewportY(200);
     MAP.setViewportX(200);
 
     MAP2 = OBJ_MANAGER.createMap("Bosque2");
     MAP2.setType("objects");
     MAP2.setImgSrc("html/public/img/background.png")
+    cloud_options = {
+      name: 'nube',
+      type: 'mapObjectFocus', // mapObjectFocus , mapObject
+      posX: 50,
+      posY: 400,
+      width: 50,
+      height: 50
+    }
+    cloud = OBJ_MANAGER.createObject(cloud_options);
+    cloud.draw = function(){
 
+      //mapObjectFocus
+      CC.canvas.ctx.fillRect(cloud.drawPosX(0.2), cloud.drawPosY(), cloud.width, cloud.height);
+
+      //mapObject
+      //CC.canvas.ctx.fillRect(cloud.drawPosX(MAP2.posX), cloud.drawPosY(MAP2.posY), cloud.width, cloud.height);
+    }
+    MAP2.addObject(cloud)
     MAP2.setViewportY(200);
     MAP2.setViewportX(200);
+
+    setInterval(function(){
+      MAP2.setPosX(MAP2.posX+2)
+    },400)
 
     CC.objectsToDraw = OBJ_MANAGER.getAllObjects;
 
