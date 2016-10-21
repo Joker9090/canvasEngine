@@ -39,7 +39,7 @@ function start(){
     MAP.setViewportX(200);
 
     MAP2 = OBJ_MANAGER.createMap("Bosque2");
-    MAP2.setType("image");
+    MAP2.setType("objects");
     MAP2.setImgSrc("html/public/img/background.png")
 
     MAP2.setViewportY(200);
