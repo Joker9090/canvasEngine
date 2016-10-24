@@ -34,7 +34,7 @@ function start(){
     MAP = OBJ_MANAGER.createMap("Bosque");
     MAP.setType("image");
     MAP.setImgSrc("html/public/img/background.png")
-    MAP.setPosX(100);
+    MAP.setPos(100,MAP.posY);
     MAP.setViewportY(200);
     MAP.setViewportX(200);
 
@@ -58,18 +58,20 @@ function start(){
       //mapObject
       //CC.canvas.ctx.fillRect(cloud.drawPosX(MAP2.posX), cloud.drawPosY(MAP2.posY), cloud.width, cloud.height);
     }
+
     MAP2.addObject(cloud)
     MAP2.setViewportY(200);
     MAP2.setViewportX(200);
 
-    setInterval(function(){
-      MAP2.setPosX(MAP2.posX+2)
-    },400)
+    // setInterval(function(){
+    //   MAP3.setPos(MAP3.posX+2,MAP3.posY)
+    // },400)
 
     CC.objectsToDraw = OBJ_MANAGER.getAllObjects;
 
     o_god_options = {
-      name: 'god'
+      name: 'god',
+      layer: 1
     }
 
     o_god = OBJ_MANAGER.createObject(o_god_options);
@@ -111,13 +113,13 @@ function start(){
     right = { keyCode  : 39, function : rightMove, delay : 20 }
 
     function leftMove() {
-      o_god.setPosX(o_god.posX - 1);
-      MAP.setPosX(MAP.posX-0.3);
+      o_god.setPos(o_god.posX - 1,o_god.posY);
+      MAP.setPos(MAP.posX-0.3,MAP.posY);
     }
 
     function rightMove() {
-      o_god.setPosX(o_god.posX + 1);
-      MAP.setPosX(MAP.posX+0.3);
+      o_god.setPos(o_god.posX + 1,o_god.posY);
+      MAP.setPos(MAP.posX+0.3,MAP.posY);
     }
 
     CE.addKeyEvent(left);

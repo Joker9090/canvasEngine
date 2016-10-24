@@ -32,11 +32,17 @@ CanvasObjects = function(canvas){
       height : co_self.canvas.c.height,
       posX : 0,
       focusPosX : 0,
+      setPos: function(x,y){
+        this.setPosX(x);
+        this.setPosY(y);
+        co_self.checkPhysics(this.layer);
+      },
       setPosX : function(val){ this.posX = val; },
       calculePosX : function() { return this.posX; },
       posY : 0,
       focusPosY : 0,
       setPosY : function(val){ this.posY = val; },
+
       calculePosY : function(){ if(this.mapType == "image") return  this.img.height - this.viewportY - this.posY ; },
       viewportX : this.width,
       setViewportX : function(val){ this.viewportX = val; },
@@ -71,7 +77,7 @@ CanvasObjects = function(canvas){
         co_self.imgs[this.id] = new Image();
         co_self.imgs[this.id].onload = function(id){
           co_self.getObjectById(id).img = co_self.imgs[id];
-          if(typeof fn == "function") fn();
+          if(typeof fn == "function") fn(co_self.getObjectById(id));
         }(this.id)
         co_self.imgs[this.id].src = this.imgSrc;
       },
@@ -121,13 +127,32 @@ CanvasObjects = function(canvas){
   co_self.createObject = function(type){
     co_self._mapsimageTotals++;
     _object = {
+      setPos: function(x,y){
+        this.setPosX(x);
+        this.setPosY(y);
+        co_self.checkPhysics(this.layer);
+      },
       setPosX : function(val){ this.posX = val; },
       setPosY : function(val){ this.posY = val; },
       name: "",
       focus: false,
+      weight: 0,
+      aceleration:0,
+      windSpeed:0,
+      speed:0,
       id: co_self._mapsimageTotals,
       img: "",
+      imgSrc: ",",
+      setImgSrc : function(imgUrl,fn){ this.imgSrc = imgUrl; this.loadImg(fn); },
       layer: 0,
+      loadImg : function(fn){
+        co_self.imgs[this.id] = new Image();
+        co_self.imgs[this.id].onload = function(id){
+          co_self.getObjectById(id).img = co_self.imgs[id];
+          if(typeof fn == "function") fn(co_self.getObjectById(id));
+        }(this.id)
+        co_self.imgs[this.id].src = this.imgSrc;
+      },
       setLayer: function(v){
         co_self.objectsByLayer[v][co_self.objectsByLayer[v].length] = this;
         co_self.removeFromLayers(this.layer,this.id);
@@ -160,10 +185,10 @@ CanvasObjects = function(canvas){
       focusPosY: 0,
       width: 0,
       height: 0,
-      startSpriteX: "",
-      startSpriteY: "",
-      endSpriteX: "",
-      endSpriteY: ""
+      startSpriteX: 0,
+      startSpriteY: 0,
+      endSpriteX: 0,
+      endSpriteY: 0
     }
 
     _object = (typeof type == "object") ? co_self.mergeObjects(type,_object) : _object;
@@ -206,6 +231,10 @@ CanvasObjects = function(canvas){
         o[i].focus = false;
       }
     }
+  }
+
+  co_self.checkPhysics = function(layer){
+    console.log(layer)
   }
 
 }
