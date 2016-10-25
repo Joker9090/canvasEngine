@@ -138,11 +138,14 @@ CanvasObjects = function(canvas){
       focus: false,
       weight: 0,
       aceleration:0,
+      gravityForce:0,
+      extraForce:0,
+      extraForceAngle:0,
       windSpeed:0,
       speed:0,
       id: co_self._mapsimageTotals,
       img: "",
-      imgSrc: ",",
+      imgSrc: "",
       setImgSrc : function(imgUrl,fn){ this.imgSrc = imgUrl; this.loadImg(fn); },
       layer: 0,
       loadImg : function(fn){
@@ -235,6 +238,18 @@ CanvasObjects = function(canvas){
 
   co_self.checkPhysics = function(layer){
     console.log(layer)
+  }
+
+  co_self.startWind = function(wf){
+    //windForce
+    this.interval = setInterval(function(){
+      objects = co_self.getAllObjects();
+        for (var i = 0; i < objects.length; i++) {
+          if(objects[i].windSpeed > 0){
+            objects[i].setPosX(objects[i].posX+objects[i].windSpeed*wf)
+          }
+        }
+    },50)
   }
 
 }

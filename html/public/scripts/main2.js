@@ -75,11 +75,6 @@ function start(){
       MAP.addObject(cloudBlock[last]);
     }
 
-    wind = setInterval(function(){
-      for (var i = 0; i < cloudBlock.length; i++) {
-        cloudBlock[i].setPosX(cloudBlock[i].posX+cloudBlock[i].windSpeed)
-      }
-    },50);
 
     createCloudInterval = setInterval(function(){
       if((Math.floor(Math.random() * 10) + 1  ) > 7){
@@ -91,13 +86,13 @@ function start(){
     for (var i = 0; i < 18; i++) {
       tempOpts = {
         type: 'mapObject',
-        posX: 50*(i+1),
+        posX: (i == 0) ? 0 : (i*100),
         posY: 50,
-        width: 75,
-        height: 75,
-        startSpriteX: 205,
+        width: 100,
+        height: 100,
+        startSpriteX: 206,
         startSpriteY: 10,
-        endSpriteX: 50,
+        endSpriteX: 60,
         endSpriteY: 50
       }
       grassBlocks[i] = OBJ_MANAGER.createObject(tempOpts);
@@ -117,11 +112,11 @@ function start(){
         }
       })
       MAP.addObject(grassBlocks[i]);
-      }
+    }
 
 
+      WIND = OBJ_MANAGER.startWind(2)
   });
-
 
 
 }
