@@ -255,7 +255,9 @@ CanvasObjects = function(canvas){
   }
 
   co_self.checkPhysics = function(fisObj){
+
     if(fisObj.solid == 0) return true;
+    if(co_self.objectsByLayer[fisObj.layer].length < 2) return true
     objs = co_self.objectsByLayer[fisObj.layer];
     for (var i = 0; i < objs.length; i++) {
       if((objs[i].id != fisObj.id) && objs[i].solid > 0){
@@ -334,7 +336,6 @@ CanvasObjects = function(canvas){
         for (var i = 0; i < g_objects.length; i++) {
           if(g_objects[i].gravityForce != 0){
               newY = g_objects[i].posY + g_objects[i].velocityY;
-              console.log(newY)
               g_objects[i].velocityY = g_objects[i].velocityY - (g_objects[i].gravityForce/100)
 
               g_objects[i].setPos(g_objects[i].posX,newY)

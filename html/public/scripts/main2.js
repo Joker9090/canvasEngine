@@ -118,7 +118,7 @@ function start(){
       MAP.addObject(grassBlocks[i]);
 
     }
-
+    
 
     personOpt = {
       name:"person",
@@ -127,7 +127,8 @@ function start(){
       layer: 2,
       width: 20,
       height: 50,
-      gravityForce: 0.1
+      gravityForce: 0.1,
+      solid:1
     }
     person = OBJ_MANAGER.createObject(personOpt);
     person.draw = function(){
