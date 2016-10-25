@@ -15,6 +15,7 @@ CanvasObjects = function(canvas){
     }
     return newObjectList;
    }
+
   co_self.createMap = function(name){
     co_self._mapsimageTotals++;
     cm_obj = {
@@ -26,6 +27,13 @@ CanvasObjects = function(canvas){
         co_self.removeFromLayers(this.layer,this.id);
         this.layer = v;
       },
+      velocityX:0,
+      velocityY:0,
+      gravityForce:0,
+      extraForce:0,
+      extraForceAngle:0,
+      windSpeed:0,
+      solid:0,
       name : (typeof name == undefined ) ? "map" : name,
       visible : true,
       width : co_self.canvas.c.width,
@@ -33,9 +41,13 @@ CanvasObjects = function(canvas){
       posX : 0,
       focusPosX : 0,
       setPos: function(x,y){
-        this.setPosX(x);
-        this.setPosY(y);
-        co_self.checkPhysics(this.layer);
+        if(co_self.checkPhysics(this)){
+          this.setPosX(x);
+          this.setPosY(y);
+          return true;
+        }else{
+          return false;
+        }
       },
       setPosX : function(val){ this.posX = val; },
       calculePosX : function() { return this.posX; },
@@ -66,9 +78,11 @@ CanvasObjects = function(canvas){
         if(obj instanceof Array){
           for (var i = 0; i < obj.length; i++) {
             this.mapObjects[this.mapObjects.length] = obj[i];
+            obj[i].setLayer(this.layer)
           }
         }else{
           this.mapObjects[this.mapObjects.length] = obj;
+          obj.setLayer(this.layer)
         }
       },
       img: "",
@@ -98,9 +112,7 @@ CanvasObjects = function(canvas){
         }
       },
       drawWithObjects : function(){
-        for (var i = 0; i < this.mapObjects.length; i++) {
-          if(typeof this.mapObjects[i].draw == "function") this.mapObjects[i].draw()
-        }
+        //no hace falta nada porque lo dibuja el canvas como objeto
       }
     };
     cm_obj = (typeof name == "object") ? co_self.mergeObjects(name,cm_obj) : cm_obj;
@@ -128,21 +140,26 @@ CanvasObjects = function(canvas){
     co_self._mapsimageTotals++;
     _object = {
       setPos: function(x,y){
-        this.setPosX(x);
-        this.setPosY(y);
-        co_self.checkPhysics(this.layer);
+        if(co_self.checkPhysics(this)){
+          this.setPosX(x);
+          this.setPosY(y);
+          return true;
+        }else{
+          return false;
+        }
       },
       setPosX : function(val){ this.posX = val; },
       setPosY : function(val){ this.posY = val; },
       name: "",
       focus: false,
       weight: 0,
-      aceleration:0,
-      gravityForce:0,
+      velocityX:0,
+      velocityY:0,
+      gravityForce:0.1,
       extraForce:0,
       extraForceAngle:0,
       windSpeed:0,
-      speed:0,
+      solid:1,
       id: co_self._mapsimageTotals,
       img: "",
       imgSrc: "",
@@ -157,6 +174,7 @@ CanvasObjects = function(canvas){
         co_self.imgs[this.id].src = this.imgSrc;
       },
       setLayer: function(v){
+        if(typeof co_self.objectsByLayer[v] == "undefined") co_self.objectsByLayer[v] = Array();
         co_self.objectsByLayer[v][co_self.objectsByLayer[v].length] = this;
         co_self.removeFromLayers(this.layer,this.id);
         this.layer = v;
@@ -195,12 +213,12 @@ CanvasObjects = function(canvas){
     }
 
     _object = (typeof type == "object") ? co_self.mergeObjects(type,_object) : _object;
-    if(_object.type != 'mapObject' || _object.type != 'mapObjectFocus'){
-      if(typeof co_self.objectsByLayer[_object.layer] == "undefined"){
-        co_self.objectsByLayer[_object.layer] = Array();
-      }
-      co_self.objectsByLayer[_object.layer][co_self.objectsByLayer[_object.layer].length] = _object;
+
+    if(typeof co_self.objectsByLayer[_object.layer] == "undefined"){
+      co_self.objectsByLayer[_object.layer] = Array();
     }
+    co_self.objectsByLayer[_object.layer][co_self.objectsByLayer[_object.layer].length] = _object;
+
 
     _object.startPosX = _object.posX
     _object.startPosY = _object.posY
@@ -214,13 +232,13 @@ CanvasObjects = function(canvas){
     return c;
   }
 
-
   co_self.removeFromLayers = function(l,id){
     for (var i = 0; i < co_self.objectsByLayer[l].length; i++) {
-      if(co_self.objectsByLayer[l][i].id == id) co_self.objectsByLayer[l][i].remove();
+      if(co_self.objectsByLayer[l][i].id == id) co_self.objectsByLayer[l].slice(i,1);
     }
 
   }
+
   co_self.setFocus = function(obj){
     o = co_self.getAllObjects()
     co_self.focusEnabled = true;
@@ -236,20 +254,93 @@ CanvasObjects = function(canvas){
     }
   }
 
-  co_self.checkPhysics = function(layer){
-    console.log(layer)
+  co_self.checkPhysics = function(fisObj){
+    if(fisObj.solid == 0) return true;
+    objs = co_self.objectsByLayer[fisObj.layer];
+    for (var i = 0; i < objs.length; i++) {
+      if((objs[i].id != fisObj.id) && objs[i].solid > 0){
+        return co_self.checkPos(objs[i],fisObj);
+      }
+    }
   }
 
-  co_self.startWind = function(wf){
-    //windForce
-    this.interval = setInterval(function(){
-      objects = co_self.getAllObjects();
-        for (var i = 0; i < objects.length; i++) {
-          if(objects[i].windSpeed > 0){
-            objects[i].setPosX(objects[i].posX+objects[i].windSpeed*wf)
+  co_self.checkPos = function(obj1,obj2){
+    if (
+        (
+         ((obj1.posY >= obj2.posY) && (obj1.posY <= obj2.posY+obj2.height)) ||
+         ((obj1.posY+obj1.height >= obj2.posY) && (obj1.posY.height <= obj2.posY+obj2.height))
+       ) && (
+         ((obj1.posX >= obj2.posX) && (obj1.posX <= obj2.posX+obj2.width)) ||
+         ((obj1.posX+obj1.width >= obj2.posX) && (obj1.posX.width <= obj2.posY+obj2.width))
+       )
+    ){
+      return false
+    }else{
+      return true
+    }
+  };
+
+
+
+  co_self.windsForcesIds = -1;
+  co_self.windsForces = Array();
+  co_self.windsForcesInterval = Array();
+  co_self.startWind = function(l){
+    co_self.windsForcesIds++;
+    w_obj = {};
+    w_obj.name = "WIND";
+    w_obj.id = co_self.windsForcesIds;
+    w_obj.layer = l;
+    w_obj.force = 1
+    w_obj.setWindForce = function(newVal){
+      this.force = newVal
+    };
+    co_self.windsForces[w_obj.id] = w_obj;
+
+    co_self.windsForcesInterval[w_obj.id] = setInterval(function(id){
+      layer = co_self.windsForces[id].layer;
+      wind_objects = co_self.objectsByLayer[layer];
+      wf = co_self.windsForces[id].force;
+        for (var i = 0; i < wind_objects.length; i++) {
+          if(wind_objects[i].windSpeed > 0){
+            wind_objects[i].setPos(wind_objects[i].posX+wind_objects[i].windSpeed*wf,wind_objects[i].posY)
           }
         }
-    },50)
+    },10,(w_obj.id))
+
+    return w_obj;
+
+  }
+
+  co_self.gravityForcesIds = -1;
+  co_self.gravityForces = Array();
+  co_self.gravityForcesInterval = Array();
+
+  co_self.startGravity = function(l){
+    co_self.gravityForcesIds++;
+    g_obj = {};
+    g_obj.name = "GRAVITY";
+    g_obj.id = co_self.gravityForcesIds;
+    g_obj.layer = l;
+    g_obj.force = 9.8/100
+    g_obj.setGravity = function(newVal){
+      this.force = newVal/100
+    };
+
+    co_self.gravityForces[g_obj.id] = g_obj;
+
+    co_self.gravityForcesInterval = setInterval(function(id){
+      layer = co_self.gravityForces[id].layer;
+      g_objects = co_self.objectsByLayer[layer];
+        for (var i = 0; i < g_objects.length; i++) {
+          if(g_objects[i].gravityForce != 0){
+              newY = g_objects[i].posY + g_objects[i].velocityY;
+              g_objects[i].velocityY = g_objects[i].velocityY - (g_objects[i].gravityForce/100)
+              g_objects[i].setPos(g_objects[i].posX,newY)
+          }
+        }
+    },10,(g_obj.id));
+    return g_obj;
   }
 
 }
