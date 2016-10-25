@@ -266,10 +266,11 @@ CanvasObjects = function(canvas){
     }
   }
 
-  co_self.checkPos = function(obj1,obj2){
+  co_self.checkPos = function(obj2,obj1){
+    console.log(obj1.posY)
     if (
         (
-         ((obj1.posY >= obj2.posY) && (obj1.posY <= obj2.posY+obj2.height)) ||
+         ((obj1.posY+obj1.height >= obj2.posY) && (obj1.posY+obj1.height <= obj2.posY+obj2.height)) ||
          ((obj1.posY+obj1.height >= obj2.posY) && (obj1.posY.height <= obj2.posY+obj2.height))
        ) && (
          ((obj1.posX >= obj2.posX) && (obj1.posX <= obj2.posX+obj2.width)) ||
