@@ -326,7 +326,6 @@ CanvasObjects = function(canvas){
     g_obj.setGravity = function(newVal){
       this.force = newVal/100
     };
-
     co_self.gravityForces[g_obj.id] = g_obj;
 
     co_self.gravityForcesInterval = setInterval(function(id){
@@ -335,11 +334,15 @@ CanvasObjects = function(canvas){
         for (var i = 0; i < g_objects.length; i++) {
           if(g_objects[i].gravityForce != 0){
               newY = g_objects[i].posY + g_objects[i].velocityY;
+              console.log(newY)
               g_objects[i].velocityY = g_objects[i].velocityY - (g_objects[i].gravityForce/100)
+
               g_objects[i].setPos(g_objects[i].posX,newY)
+
           }
         }
     },10,(g_obj.id));
+
     return g_obj;
   }
 
