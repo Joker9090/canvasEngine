@@ -38,7 +38,8 @@ function start(){
     MAP.setViewportY(200);
     MAP.setViewportX(200);
     MAP.setPos(50,50);
-    MAP.layer = 1;
+    MAP.layer = 0;
+
 
     cloudBlock = Array();
     createCloud = function(x,y,ac){
@@ -84,6 +85,14 @@ function start(){
     },500)
 
     //FloorGrass
+
+    MAP2 = OBJ_MANAGER.createMap("backMap");
+    MAP2.setType("objects");
+    MAP2.setViewportY(200);
+    MAP2.setViewportX(200);
+    MAP2.setPos(50,50);
+    MAP2.layer = 1;
+
     grassBlocks = Array();
     for (var i = 0; i < 18; i++) {
       tempOpts = {
@@ -91,6 +100,7 @@ function start(){
         posX: (i == 0) ? 0 : (i*100),
         posY: 50,
         width: 100,
+        solid: 1,
         height: 100,
         gravityForce: 0,
         startSpriteX: 206,
@@ -115,21 +125,21 @@ function start(){
           );
         }
       })
-      MAP.addObject(grassBlocks[i]);
+      MAP2.addObject(grassBlocks[i]);
 
     }
-    
 
     personOpt = {
       name:"person",
       posX: 100,
       posY: 250,
-      layer: 2,
+      layer: 1,
       width: 20,
       height: 50,
       gravityForce: 0.1,
       solid:1
-    }
+    };
+
     person = OBJ_MANAGER.createObject(personOpt);
     person.draw = function(){
       CC.canvas.ctx.fillStyle = "white";
@@ -137,10 +147,10 @@ function start(){
       CC.canvas.ctx.fillStyle = "black";
     }
 
-    WIND1 = OBJ_MANAGER.startWind(1);
+    WIND1 = OBJ_MANAGER.startWind(0);
     WIND1.setWindForce(0.5);
 
-    GRAVITY2 = OBJ_MANAGER.startGravity(2);
+    GRAVITY2 = OBJ_MANAGER.startGravity(1);
     GRAVITY2.setGravity(9.8)
 
 
