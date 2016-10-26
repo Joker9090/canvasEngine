@@ -37,7 +37,6 @@ function start(){
     MAP.setType("objects");
     MAP.setViewportY(200);
     MAP.setViewportX(200);
-    MAP.setPos(50,50);
     MAP.layer = 0;
 
 
@@ -90,7 +89,6 @@ function start(){
     MAP2.setType("objects");
     MAP2.setViewportY(200);
     MAP2.setViewportX(200);
-    MAP2.setPos(50,50);
     MAP2.layer = 1;
 
     grassBlocks = Array();
@@ -98,7 +96,7 @@ function start(){
       tempOpts = {
         type: 'mapObject',
         posX: (i == 0) ? 0 : (i*100),
-        posY: 50,
+        posY: 0,
         width: 100,
         solid: 1,
         height: 100,
@@ -136,7 +134,7 @@ function start(){
       layer: 1,
       width: 20,
       height: 50,
-      gravityForce: 0.1,
+      gravityForce: 12,
       solid:1
     };
 
@@ -152,7 +150,6 @@ function start(){
 
     GRAVITY2 = OBJ_MANAGER.startGravity(1);
     GRAVITY2.setGravity(9.8)
-
 
   });
 

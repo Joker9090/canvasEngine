@@ -41,7 +41,7 @@ CanvasObjects = function(canvas){
       posX : 0,
       focusPosX : 0,
       setPos: function(x,y){
-        if(co_self.checkPhysics(this)){
+        if(co_self.checkPhysics(this,x,y)){
           this.setPosX(x);
           this.setPosY(y);
           return true;
@@ -140,7 +140,7 @@ CanvasObjects = function(canvas){
     co_self._mapsimageTotals++;
     _object = {
       setPos: function(x,y){
-        if(co_self.checkPhysics(this)){
+        if(co_self.checkPhysics(this,x,y)){
           this.setPosX(x);
           this.setPosY(y);
           return true;
@@ -160,6 +160,7 @@ CanvasObjects = function(canvas){
       extraForceAngle:0,
       windSpeed:0,
       solid:1,
+      contact:0,
       id: co_self._mapsimageTotals,
       img: "",
       imgSrc: "",
@@ -254,32 +255,59 @@ CanvasObjects = function(canvas){
     }
   }
 
-  co_self.checkPhysics = function(fisObj){
+  co_self.checkPhysics = function(fisObj,newX,newY){
 
     if(fisObj.solid == 0) return true;
     if(co_self.objectsByLayer[fisObj.layer].length < 2) return true
     objs = co_self.objectsByLayer[fisObj.layer];
     for (var i = 0; i < objs.length; i++) {
       if((objs[i].id != fisObj.id) && objs[i].solid > 0){
-        return co_self.checkPos(objs[i],fisObj);
+        return co_self.checkPos(objs[i],fisObj,newX,newY);
       }
     }
   }
 
-  co_self.checkPos = function(obj2,obj1){
+  co_self.checkPos = function(obj2,obj1,x,y){
     console.log(obj1.posY)
     if (
         (
-         ((obj1.posY+obj1.height >= obj2.posY) && (obj1.posY+obj1.height <= obj2.posY+obj2.height)) ||
-         ((obj1.posY+obj1.height >= obj2.posY) && (obj1.posY.height <= obj2.posY+obj2.height))
-       ) && (
-         ((obj1.posX >= obj2.posX) && (obj1.posX <= obj2.posX+obj2.width)) ||
-         ((obj1.posX+obj1.width >= obj2.posX) && (obj1.posX.width <= obj2.posY+obj2.width))
-       )
-    ){
+          (obj1.posY <= obj2.posY+obj2.height) ||
+          (obj1.posY+obj1.height <= obj2.posY)
+        )
+      &&
+        (
+        (obj1.posX <= obj2.posX+obj2.posX) ||
+        (obj1.posX+obj1.height >= obj2.posX)
+        )
+      )
+    {
+      obj1.contact = 1;
       return false
     }else{
-      return true
+      if (
+          (
+            (y <= obj2.posY+obj2.height) ||
+            (y+obj1.height <= obj2.posY)
+          )
+        &&
+          (
+          (x <= obj2.posX+obj2.posX) ||
+          (x+obj1.height >= obj2.posX)
+          )
+        )
+      {
+        newX = Math.floor(obj1.posX);
+        newY = Math.floor(obj1.posY);
+        newX = (newX > x) ? newX-1 : (newX < x) ? newX+1 : newX
+        newY = (newY > y) ? newY-1 : (newY < y) ? newY+1 : newY
+        obj1.posX = newX;
+        obj1.posY = newY;
+        obj1.contact = 1;
+        return false;
+      }else{
+        obj1.contact = 0;
+        return true
+      }
     }
   };
 
@@ -325,24 +353,27 @@ CanvasObjects = function(canvas){
     g_obj.name = "GRAVITY";
     g_obj.id = co_self.gravityForcesIds;
     g_obj.layer = l;
-    g_obj.force = 9.8/100
+    g_obj.force = 9.8/10
     g_obj.setGravity = function(newVal){
-      this.force = newVal/100
+      this.force = newVal/10
     };
     co_self.gravityForces[g_obj.id] = g_obj;
 
     co_self.gravityForcesInterval = setInterval(function(id){
       layer = co_self.gravityForces[id].layer;
+      force = co_self.gravityForces[id].force;
       g_objects = co_self.objectsByLayer[layer];
-        for (var i = 0; i < g_objects.length; i++) {
-          if(g_objects[i].gravityForce != 0){
-              newY = g_objects[i].posY + g_objects[i].velocityY;
-              g_objects[i].velocityY = g_objects[i].velocityY - (g_objects[i].gravityForce/100)
 
-              g_objects[i].setPos(g_objects[i].posX,newY)
+      for (var i = 0; i < g_objects.length; i++) {
+        if(g_objects[i].gravityForce != 0){
 
-          }
+            newY = (g_objects[i].contact == 0) ? g_objects[i].posY + g_objects[i].velocityY : g_objects[i].posY;
+            g_objects[i].velocityY = g_objects[i].velocityY - (g_objects[i].gravityForce*force)
+
+            g_objects[i].setPos(g_objects[i].posX,newY)
+
         }
+      }
     },10,(g_obj.id));
 
     return g_obj;
