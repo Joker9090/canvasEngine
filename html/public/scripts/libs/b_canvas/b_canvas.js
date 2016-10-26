@@ -24,6 +24,7 @@ CanvasController = function(e){
     for (var i = 0; i < objects.length; i++) {
 
       if(typeof objects[i].draw == "function" ) objects[i].draw()
+      if(typeof objects[i].draw == "function" ) objects[i].draw()
     }
     if(cc_self.showFps) cc_self.showFpsFunction();
     requestAnimationFrame(cc_self.draw);

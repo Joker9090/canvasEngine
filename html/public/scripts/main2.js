@@ -40,48 +40,55 @@ function start(){
     MAP.layer = 0;
 
 
-    cloudBlock = Array();
-    createCloud = function(x,y,ac){
-      tempOpts = {
-        name: 'nube',
-         type: 'mapObject', // mapObjectFocus , mapObject
-         posX: x,
-         posY: y,
-         width: 100,
-         gravityForce: 0,
-         solid: 0,
-         height: 50,
-         startSpriteX: 0,
-         startSpriteY: 0,
-         endSpriteX: 288,
-         endSpriteY: 144,
-         windSpeed: ac
-      }
-      last = cloudBlock.length
-      cloudBlock[last] = OBJ_MANAGER.createObject(tempOpts);
-      cloudBlock[last].setImgSrc("html/public/img/cloud.png",function(a){
-        cloudBlock[last].draw = function(){
-          CC.canvas.ctx.drawImage(
-          a.img,
-          a.startSpriteX,
-          a.startSpriteY,
-          a.endSpriteX,
-          a.endSpriteY,
-          a.drawPosX(MAP.posX),
-          a.drawPosY(MAP.posY),
-          a.width,
-          a.height
-          );
-        }
-      })
-      MAP.addObject(cloudBlock[last]);
-    }
-
-    createCloudInterval = setInterval(function(){
-      if((Math.floor(Math.random() * 10) + 1  ) > 7){
-        createCloud(-100,(Math.floor(Math.random() * 350) + 250  ),Math.random()+ 1)
-      }
-    },500)
+    // cloudBlock = Array();
+    // createCloud = function(x,y,ac){
+    //   tempOpts = {
+    //     name: 'nube',
+    //      type: 'mapObject', // mapObjectFocus , mapObject
+    //      blockId: cloudBlock.length,
+    //      posX: x,
+    //      posY: y,
+    //      width: 100,
+    //      gravityForce: 0,
+    //      solid: 0,
+    //      height: 50,
+    //      startSpriteX: 0,
+    //      startSpriteY: 0,
+    //      endSpriteX: 288,
+    //      endSpriteY: 144,
+    //      windSpeed: ac,
+    //      remove: function(){
+    //        OBJ_MANAGER.getObjectById(this.id).canDraw = 0
+    //      }
+    //   }
+    //   last = tempOpts.blockId
+    //   cloudBlock[last] = OBJ_MANAGER.createObject(tempOpts);
+    //   cloudBlock[last].setImgSrc("html/public/img/cloud.png",function(a){
+    //     cloudBlock[last].draw = function(){
+    //       if(a.posX > CC.width) a.remove()
+    //       if(a.canDraw == 1){
+    //         CC.canvas.ctx.drawImage(
+    //         a.img,
+    //         a.startSpriteX,
+    //         a.startSpriteY,
+    //         a.endSpriteX,
+    //         a.endSpriteY,
+    //         a.drawPosX(MAP.posX),
+    //         a.drawPosY(MAP.posY),
+    //         a.width,
+    //         a.height
+    //         );
+    //       }
+    //     }
+    //   })
+    //   MAP.addObject(cloudBlock[last]);
+    // }
+    //
+    // createCloudInterval = setInterval(function(){
+    //   if((Math.floor(Math.random() * 10) + 1  ) > 7){
+    //     createCloud(-100,(Math.floor(Math.random() * 350) + 250  ),Math.random()+ 1)
+    //   }
+    // },500)
 
     //FloorGrass
 
@@ -96,7 +103,7 @@ function start(){
       tempOpts = {
         type: 'mapObject',
         posX: (i == 0) ? 0 : (i*100),
-        posY: 0,
+        posY: -50,
         width: 100,
         solid: 1,
         height: 100,
@@ -127,21 +134,23 @@ function start(){
 
     }
 
-    personOpt = {
-      name:"person",
-      posX: 100,
-      posY: 250,
+
+
+    personOpt2 = {
+      name:"person2",
+      posX: 200,
+      posY: 150,
       layer: 1,
       width: 20,
       height: 50,
-      gravityForce: 12,
+      gravityForce: 1,
       solid:1
     };
 
-    person = OBJ_MANAGER.createObject(personOpt);
-    person.draw = function(){
+    person2 = OBJ_MANAGER.createObject(personOpt2);
+    person2.draw = function(){
       CC.canvas.ctx.fillStyle = "white";
-      CC.canvas.ctx.fillRect(person.drawPosX(),person.drawPosY(),person.width,person.height)
+      CC.canvas.ctx.fillRect(person2.drawPosX(),person2.drawPosY(),person2.width,person2.height)
       CC.canvas.ctx.fillStyle = "black";
     }
 
@@ -150,6 +159,23 @@ function start(){
 
     GRAVITY2 = OBJ_MANAGER.startGravity(1);
     GRAVITY2.setGravity(9.8)
+
+    CE = new CanvasEvents(CC.canvas.c);
+
+    left =  { keyCode  : 37, function : leftMove, delay : 20 }
+    right = { keyCode  : 39, function : rightMove, delay : 20 }
+
+    function leftMove() {
+      person2.setPos(person2.posX - 1,person2.posY);
+    }
+
+    function rightMove() {
+      person2.setPos(person2.posX + 1,person2.posY);
+    }
+
+    CE.addKeyEvent(left);
+    CE.addKeyEvent(right);
+
 
   });
 

@@ -34,6 +34,8 @@ CanvasObjects = function(canvas){
       extraForceAngle:0,
       windSpeed:0,
       solid:0,
+      canRemove: 0,
+      remove: "",
       name : (typeof name == undefined ) ? "map" : name,
       visible : true,
       width : co_self.canvas.c.width,
@@ -151,6 +153,7 @@ CanvasObjects = function(canvas){
       setPosX : function(val){ this.posX = val; },
       setPosY : function(val){ this.posY = val; },
       name: "",
+      canDraw: 1,
       focus: false,
       weight: 0,
       velocityX:0,
@@ -160,7 +163,12 @@ CanvasObjects = function(canvas){
       extraForceAngle:0,
       windSpeed:0,
       solid:1,
-      contact:0,
+      contactLeft:0,
+      contactUp:0,
+      contactRight:0,
+      contactDown:0,
+      canRemove: 0,
+      remove: "",
       id: co_self._mapsimageTotals,
       img: "",
       imgSrc: "",
@@ -261,54 +269,56 @@ CanvasObjects = function(canvas){
     if(co_self.objectsByLayer[fisObj.layer].length < 2) return true
     objs = co_self.objectsByLayer[fisObj.layer];
     for (var i = 0; i < objs.length; i++) {
+      _continue = true
       if((objs[i].id != fisObj.id) && objs[i].solid > 0){
-        return co_self.checkPos(objs[i],fisObj,newX,newY);
+        co_self.checkPos(objs[i],fisObj,newX,newY,function(toReturn){
+          if(toReturn == false) _continue =  false;
+        });
       }
+      if(i == objs.length-1) return _continue
     }
   }
 
-  co_self.checkPos = function(obj2,obj1,x,y){
-    console.log(obj1.posY)
+  co_self.checkPos = function(obj2,obj1,x,y,fn){
+    direction = (x > obj1.posX) ? "right" : (x < obj1.posX) ? "left" : (y > obj1.posY) ? "up" : (y < obj1.posY) ? "down" : "none";
+    fn(false)
     if (
         (
-          (obj1.posY <= obj2.posY+obj2.height) ||
-          (obj1.posY+obj1.height <= obj2.posY)
+          (obj1.posY == obj2.posY+obj2.height) ||
+          (obj1.posY+obj1.height == obj2.posY)
         )
       &&
         (
-        (obj1.posX <= obj2.posX+obj2.posX) ||
-        (obj1.posX+obj1.height >= obj2.posX)
+        (obj1.posX == obj2.posX+obj2.height) ||
+        (obj1.posX+obj1.height == obj2.posX)
         )
       )
     {
-      obj1.contact = 1;
-      return false
-    }else{
+      fn(false)
+    }else {
+
       if (
-          (
-            (y <= obj2.posY+obj2.height) ||
-            (y+obj1.height <= obj2.posY)
-          )
-        &&
-          (
-          (x <= obj2.posX+obj2.posX) ||
-          (x+obj1.height >= obj2.posX)
-          )
+        (
+          (y <= obj2.posY+obj2.height) ||
+          (y+obj1.height <= obj2.posY)
         )
-      {
-        newX = Math.floor(obj1.posX);
-        newY = Math.floor(obj1.posY);
-        newX = (newX > x) ? newX-1 : (newX < x) ? newX+1 : newX
-        newY = (newY > y) ? newY-1 : (newY < y) ? newY+1 : newY
-        obj1.posX = newX;
-        obj1.posY = newY;
-        obj1.contact = 1;
-        return false;
-      }else{
-        obj1.contact = 0;
-        return true
-      }
+      &&
+        (
+          (x <= obj2.posX+obj2.width) ||
+          (x+obj1.width >= obj2.posX)
+        )
+      )
+    {
+      newX = Math.floor(obj1.posX);
+      newY = Math.floor(obj1.posY);
+      newX = (newX > x) ? newX-1 : (newX < x) ? newX+1 : newX
+      newY = (newY > y) ? newY-1 : (newY < y) ? newY+1 : newY
+      obj1.posX = newX;
+      obj1.posY = newY;
+      fn(false)
     }
+  }
+
   };
 
 
@@ -367,14 +377,14 @@ CanvasObjects = function(canvas){
       for (var i = 0; i < g_objects.length; i++) {
         if(g_objects[i].gravityForce != 0){
 
-            newY = (g_objects[i].contact == 0) ? g_objects[i].posY + g_objects[i].velocityY : g_objects[i].posY;
+            newY = (g_objects[i].contactDown == 0) ? g_objects[i].posY + g_objects[i].velocityY : g_objects[i].posY;
             g_objects[i].velocityY = g_objects[i].velocityY - (g_objects[i].gravityForce*force)
 
             g_objects[i].setPos(g_objects[i].posX,newY)
 
         }
       }
-    },10,(g_obj.id));
+    },500,(g_obj.id));
 
     return g_obj;
   }
