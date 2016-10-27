@@ -40,55 +40,55 @@ function start(){
     MAP.layer = 0;
 
 
-    // cloudBlock = Array();
-    // createCloud = function(x,y,ac){
-    //   tempOpts = {
-    //     name: 'nube',
-    //      type: 'mapObject', // mapObjectFocus , mapObject
-    //      blockId: cloudBlock.length,
-    //      posX: x,
-    //      posY: y,
-    //      width: 100,
-    //      gravityForce: 0,
-    //      solid: 0,
-    //      height: 50,
-    //      startSpriteX: 0,
-    //      startSpriteY: 0,
-    //      endSpriteX: 288,
-    //      endSpriteY: 144,
-    //      windSpeed: ac,
-    //      remove: function(){
-    //        OBJ_MANAGER.getObjectById(this.id).canDraw = 0
-    //      }
-    //   }
-    //   last = tempOpts.blockId
-    //   cloudBlock[last] = OBJ_MANAGER.createObject(tempOpts);
-    //   cloudBlock[last].setImgSrc("html/public/img/cloud.png",function(a){
-    //     cloudBlock[last].draw = function(){
-    //       if(a.posX > CC.width) a.remove()
-    //       if(a.canDraw == 1){
-    //         CC.canvas.ctx.drawImage(
-    //         a.img,
-    //         a.startSpriteX,
-    //         a.startSpriteY,
-    //         a.endSpriteX,
-    //         a.endSpriteY,
-    //         a.drawPosX(MAP.posX),
-    //         a.drawPosY(MAP.posY),
-    //         a.width,
-    //         a.height
-    //         );
-    //       }
-    //     }
-    //   })
-    //   MAP.addObject(cloudBlock[last]);
-    // }
-    //
-    // createCloudInterval = setInterval(function(){
-    //   if((Math.floor(Math.random() * 10) + 1  ) > 7){
-    //     createCloud(-100,(Math.floor(Math.random() * 350) + 250  ),Math.random()+ 1)
-    //   }
-    // },500)
+    cloudBlock = Array();
+    createCloud = function(x,y,ac){
+      tempOpts = {
+        name: 'nube',
+         type: 'mapObject', // mapObjectFocus , mapObject
+         blockId: cloudBlock.length,
+         posX: x,
+         posY: y,
+         width: 100,
+         gravityForce: 0,
+         solid: 0,
+         height: 50,
+         startSpriteX: 0,
+         startSpriteY: 0,
+         endSpriteX: 288,
+         endSpriteY: 144,
+         windSpeed: ac,
+         remove: function(){
+           OBJ_MANAGER.getObjectById(this.id).canDraw = 0
+         }
+      }
+      last = tempOpts.blockId
+      cloudBlock[last] = OBJ_MANAGER.createObject(tempOpts);
+      cloudBlock[last].setImgSrc("html/public/img/cloud.png",function(a){
+        cloudBlock[last].draw = function(){
+          if(a.posX > CC.width) a.remove()
+          if(a.canDraw == 1){
+            CC.canvas.ctx.drawImage(
+            a.img,
+            a.startSpriteX,
+            a.startSpriteY,
+            a.endSpriteX,
+            a.endSpriteY,
+            a.drawPosX(MAP.posX),
+            a.drawPosY(MAP.posY),
+            a.width,
+            a.height
+            );
+          }
+        }
+      })
+      MAP.addObject(cloudBlock[last]);
+    }
+
+    createCloudInterval = setInterval(function(){
+      if((Math.floor(Math.random() * 10) + 1  ) > 7){
+        createCloud(-100,(Math.floor(Math.random() * 350) + 250  ),Math.random()+ 1)
+      }
+    },500)
 
     //FloorGrass
 
@@ -143,7 +143,7 @@ function start(){
       layer: 1,
       width: 20,
       height: 50,
-      gravityForce: 1,
+      gravityForce: 0.5,
       solid:1
     };
 
