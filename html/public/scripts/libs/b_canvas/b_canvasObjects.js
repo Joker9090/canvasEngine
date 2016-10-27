@@ -43,12 +43,11 @@ CanvasObjects = function(canvas){
       posX : 0,
       focusPosX : 0,
       setPos: function(x,y){
-        if(co_self.checkPhysics(this,x,y)){
-          this.setPosX(x);
+        if(co_self.checkVerticalColision(this,y)){
           this.setPosY(y);
-          return true;
-        }else{
-          return false;
+        }
+        if(co_self.checkHorizontalColision(this,x)){
+          this.setPosX(x);
         }
       },
       setPosX : function(val){ this.posX = val; },
@@ -142,12 +141,11 @@ CanvasObjects = function(canvas){
     co_self._mapsimageTotals++;
     _object = {
       setPos: function(x,y){
-        if(co_self.checkPhysics(this,x,y)){
-          this.setPosX(x);
+        if(co_self.checkVerticalColision(this,y)){
           this.setPosY(y);
-          return true;
-        }else{
-          return false;
+        }
+        if(co_self.checkHorizontalColision(this,x)){
+          this.setPosX(x);
         }
       },
       setPosX : function(val){ this.posX = val; },
@@ -158,15 +156,11 @@ CanvasObjects = function(canvas){
       weight: 0,
       velocityX:0,
       velocityY:0,
-      gravityForce:0.1,
+      gravityForce:0,
       extraForce:0,
       extraForceAngle:0,
       windSpeed:0,
       solid:1,
-      contactLeft:0,
-      contactUp:0,
-      contactRight:0,
-      contactDown:0,
       canRemove: 0,
       remove: "",
       id: co_self._mapsimageTotals,
@@ -263,68 +257,68 @@ CanvasObjects = function(canvas){
     }
   }
 
-  co_self.checkPhysics = function(fisObj,newX,newY){
 
-    if(fisObj.solid == 0) return true;
-    if(co_self.objectsByLayer[fisObj.layer].length < 2) return true
-    objs = co_self.objectsByLayer[fisObj.layer];
-    fisObj.contactUp = 0;
-    fisObj.contactDown = 0;
-    fisObj.contactLeft = 0;
-    fisObj.contactRight = 0;
-    for (var i = 0; i < objs.length; i++) {
-      if((objs[i].id != fisObj.id) && objs[i].solid > 0){
-        return co_self.checkPos(objs[i],fisObj,newX,newY)
+
+
+  co_self.checkHorizontalColision = function(Obj,x){
+    if(Obj.solid == 0) return true;
+    if(co_self.objectsByLayer[Obj.layer].length < 2) return true
+    H_objs = co_self.objectsByLayer[Obj.layer];
+    canMove = true;
+    for (var i = 0; i < H_objs.length; i++) {
+      if((H_objs[i].id != Obj.id) && H_objs[i].solid > 0){
+        if(co_self.checkPos(H_objs[i],Obj,x,Obj.posY) == false) {
+          Obj.posX = (Obj.posX > x) ? H_objs[i].posX+H_objs[i].width : H_objs[i].posX
+          canMove = false;
+        }
       }
     }
+    return canMove
   }
 
+  co_self.checkVerticalColision = function(Obj,y){
+    if(Obj.solid == 0) return true;
+    if(co_self.objectsByLayer[Obj.layer].length < 2) return true
+    objs = co_self.objectsByLayer[Obj.layer];
+    canMove = true;
+    for (var i = 0; i < objs.length; i++) {
+      if((objs[i].id != Obj.id) && objs[i].solid > 0){
+        if(co_self.checkPos(objs[i],Obj,Obj.posX,y) == false) {
+          Obj.posY = (Obj.posY > y) ? objs[i].posY+objs[i].height : objs[i].posY
+          canMove = false;
+        }
+      }
+    }
+    return canMove
+  }
+
+
   co_self.checkPos = function(obj2,obj1,x,y){
-    direction = (x > obj1.posX) ? "right" : (x < obj1.posX) ? "left" : (y > obj1.posY) ? "up" : (y < obj1.posY) ? "down" : "none";
-    if(direction == "down" && obj1.contactDown > 0 ) return false;
-    if(direction == "up" && obj1.contactUp > 0 ) return false;
-    if(direction == "left" && obj1.contactLeft > 0 ) return false;
-    if(direction == "right" && obj1.contactRight > 0 ) return false;
-    
-    if (
+    if ((
         (
-          (obj1.posY == obj2.posY+obj2.height) ||
-          (obj1.posY+obj1.height == obj2.posY)
+          (obj1.posY < obj2.posY+obj2.height) ||
+          (obj1.posY+obj1.height < obj2.posY)
         )
       &&
         (
-        (obj1.posX >= obj2.posX+obj2.width) ||
-        (obj1.posX+obj1.width <= obj2.posX)
+        (obj1.posX < obj2.posX+obj2.height) ||
+        (obj1.posX+obj1.height > obj2.posX)
         )
       )
-    {
-      if(direction == "down") obj1.contactDown = 1
-      if(direction == "up") obj1.contactUp = 1
-      if(direction == "left") obj1.contactLeft = 1
-      if(direction == "right") obj1.contactRight = 1
-      return false
-    }else{
-      if (
+    ||
+      (
         (
-          (y <= obj2.posY+obj2.height) ||
-          (y+obj1.height <= obj2.posY)
+          (y < obj2.posY+obj2.height) ||
+          (y+obj1.height < obj2.posY)
         )
       &&
         (
-          (x <= obj2.posX+obj2.width) ||
-          (x+obj1.width >= obj2.posX)
+          (x < obj2.posX+obj2.posX) ||
+          (x+obj1.width > obj2.posX)
         )
-      ) {
-        newX = Math.floor(obj1.posX);
-        newY = Math.floor(obj1.posY);
-        newX = (newX > x) ? newX-1 : (newX < x) ? newX+1 : newX
-        newY = (newY > y) ? newY-1 : (newY < y) ? newY+1 : newY
-        obj1.posX = newX;
-        obj1.posY = newY;
-        return false
-      }else{
-        return true
-      }
+      ))
+    {
+      return false
     }
   };
 
@@ -382,7 +376,7 @@ CanvasObjects = function(canvas){
       g_objects = co_self.objectsByLayer[layer];
 
       for (var i = 0; i < g_objects.length; i++) {
-        if(g_objects[i].gravityForce != 0 && (g_objects[i].contactDown == 0)){
+        if(g_objects[i].gravityForce != 0){
 
             newY =  g_objects[i].posY + g_objects[i].velocityY;
             g_objects[i].velocityY = g_objects[i].velocityY - (g_objects[i].gravityForce*force)

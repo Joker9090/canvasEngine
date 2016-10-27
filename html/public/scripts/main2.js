@@ -143,7 +143,7 @@ function start(){
       layer: 1,
       width: 20,
       height: 50,
-      gravityForce: 0.5,
+      gravityForce: 0.35,
       solid:1
     };
 
