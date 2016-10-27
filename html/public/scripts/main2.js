@@ -136,14 +136,34 @@ function start(){
 
 
 
-    personOpt2 = {
-      name:"person2",
+    MEOpt = {
+      name:"me",
       posX: 200,
       posY: 150,
       layer: 1,
       width: 20,
       height: 50,
       gravityForce: 0.35,
+      solid:1
+    };
+
+    ME = OBJ_MANAGER.createObject(MEOpt);
+    ME.draw = function(){
+      CC.canvas.ctx.fillStyle = "white";
+      CC.canvas.ctx.fillRect(ME.drawPosX(),ME.drawPosY(),ME.width,ME.height)
+      CC.canvas.ctx.fillStyle = "black";
+    }
+
+
+
+    personOpt2 = {
+      name:"person2",
+      posX: 600,
+      posY: 150,
+      layer: 1,
+      width: 20,
+      height: 50,
+      gravityForce: 0.1,
       solid:1
     };
 
@@ -154,6 +174,7 @@ function start(){
       CC.canvas.ctx.fillStyle = "black";
     }
 
+
     WIND1 = OBJ_MANAGER.startWind(0);
     WIND1.setWindForce(0.5);
 
@@ -163,14 +184,19 @@ function start(){
     CE = new CanvasEvents(CC.canvas.c);
 
     left =  { keyCode  : 37, function : leftMove, delay : 20 }
+    up =    { keyCode  : 38, function : jump, delay : 20 }
     right = { keyCode  : 39, function : rightMove, delay : 20 }
 
     function leftMove() {
-      person2.setPos(person2.posX - 1,person2.posY);
+      ME.setPosX(ME.posX - 1);
+    }
+
+    function jump() {
+      ME.velocityY = -200 // ACA ME QUEDE
     }
 
     function rightMove() {
-      person2.setPos(person2.posX + 1,person2.posY);
+      ME.setPosX(ME.posX + 1);
     }
 
     CE.addKeyEvent(left);

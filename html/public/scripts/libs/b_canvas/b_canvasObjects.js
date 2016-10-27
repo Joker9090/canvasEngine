@@ -43,19 +43,26 @@ CanvasObjects = function(canvas){
       posX : 0,
       focusPosX : 0,
       setPos: function(x,y){
-        if(co_self.checkVerticalColision(this,y)){
-          this.setPosY(y);
-        }
-        if(co_self.checkHorizontalColision(this,x)){
-          this.setPosX(x);
-        }
+        this.posX = x;
+        this.posY = y;
       },
-      setPosX : function(val){ this.posX = val; },
+      setPosX : function(x){
+        if(co_self.checkHorizontalColision(this,x)){
+          this.posX = x;
+          return true
+        }
+        return false
+      },
       calculePosX : function() { return this.posX; },
       posY : 0,
       focusPosY : 0,
-      setPosY : function(val){ this.posY = val; },
-
+      setPosY : function(y){
+        if(co_self.checkVerticalColision(this,y)){
+          this.posY = y;
+          return true;
+        }
+        return false
+      },
       calculePosY : function(){ if(this.mapType == "image") return  this.img.height - this.viewportY - this.posY ; },
       viewportX : this.width,
       setViewportX : function(val){ this.viewportX = val; },
@@ -141,15 +148,23 @@ CanvasObjects = function(canvas){
     co_self._mapsimageTotals++;
     _object = {
       setPos: function(x,y){
-        if(co_self.checkVerticalColision(this,y)){
-          this.setPosY(y);
-        }
-        if(co_self.checkHorizontalColision(this,x)){
-          this.setPosX(x);
-        }
+        this.posX = x;
+        this.posY = y;
       },
-      setPosX : function(val){ this.posX = val; },
-      setPosY : function(val){ this.posY = val; },
+      setPosX : function(x){
+        if(co_self.checkHorizontalColision(this,x)){
+          this.posX = x;
+          return true
+        }
+        return false;
+      },
+      setPosY : function(y){
+        if(co_self.checkVerticalColision(this,y)){
+          this.posY = y;
+          return true;
+        }
+        return false
+      },
       name: "",
       canDraw: 1,
       focus: false,
@@ -258,7 +273,23 @@ CanvasObjects = function(canvas){
   }
 
 
-
+  co_self.checkVerticalColision = function(Obj,y){
+    if(Obj.solid == 0) return true;
+    if(co_self.objectsByLayer[Obj.layer].length < 2) return true
+    V_objs = co_self.objectsByLayer[Obj.layer];
+    canMove = true;
+    for (var i = 0; i < V_objs.length; i++) {
+      if((V_objs[i].id != Obj.id) && V_objs[i].solid > 0){
+        if(co_self.checkPos(V_objs[i],Obj,Obj.posX,y) == false) {
+          if ((Obj.posX+Obj.width != V_objs[i].posX ) && (y != V_objs[i].posY ) ){
+            Obj.posY = (Obj.posY > y) ? V_objs[i].posY+V_objs[i].height : V_objs[i].posY
+          }
+          canMove = false;
+        }
+      }
+    }
+    return canMove
+  }
 
   co_self.checkHorizontalColision = function(Obj,x){
     if(Obj.solid == 0) return true;
@@ -268,7 +299,10 @@ CanvasObjects = function(canvas){
     for (var i = 0; i < H_objs.length; i++) {
       if((H_objs[i].id != Obj.id) && H_objs[i].solid > 0){
         if(co_self.checkPos(H_objs[i],Obj,x,Obj.posY) == false) {
-          Obj.posX = (Obj.posX > x) ? H_objs[i].posX+H_objs[i].width : H_objs[i].posX
+
+          if ((x+Obj.width != H_objs[i].posX ) && (Obj.posY != H_objs[i].posY ) ){
+            Obj.posX = (Obj.posX > x) ? H_objs[i].posX+H_objs[i].width : H_objs[i].posX
+          };
           canMove = false;
         }
       }
@@ -276,51 +310,48 @@ CanvasObjects = function(canvas){
     return canMove
   }
 
-  co_self.checkVerticalColision = function(Obj,y){
-    if(Obj.solid == 0) return true;
-    if(co_self.objectsByLayer[Obj.layer].length < 2) return true
-    objs = co_self.objectsByLayer[Obj.layer];
-    canMove = true;
-    for (var i = 0; i < objs.length; i++) {
-      if((objs[i].id != Obj.id) && objs[i].solid > 0){
-        if(co_self.checkPos(objs[i],Obj,Obj.posX,y) == false) {
-          Obj.posY = (Obj.posY > y) ? objs[i].posY+objs[i].height : objs[i].posY
-          canMove = false;
-        }
-      }
-    }
-    return canMove
-  }
+
 
 
   co_self.checkPos = function(obj2,obj1,x,y){
-    if ((
-        (
-          (obj1.posY < obj2.posY+obj2.height) ||
-          (obj1.posY+obj1.height < obj2.posY)
-        )
-      &&
-        (
-        (obj1.posX < obj2.posX+obj2.height) ||
-        (obj1.posX+obj1.height > obj2.posX)
-        )
+    if (
+      (obj2.posX+obj2.width > x) &&
+      (obj2.posX < x+obj1.width) &&
+      (obj2.posY+obj2.height > y) &&
+      (obj2.posY < y+obj1.height)
       )
-    ||
-      (
-        (
-          (y < obj2.posY+obj2.height) ||
-          (y+obj1.height < obj2.posY)
-        )
-      &&
-        (
-          (x < obj2.posX+obj2.posX) ||
-          (x+obj1.width > obj2.posX)
-        )
-      ))
     {
       return false
     }
   };
+
+  // co_self.checkVPos = function(obj2,obj1,x,y){
+  //   if (
+  //     (obj2.posX+obj2.width > x) &&
+  //     (obj2.posX < x+obj1.width) &&
+  //     (obj2.posY+obj2.height >= y) &&
+  //     (obj2.posY <= y+obj1.height)
+  //     )
+  //   {
+  //     return false
+  //   }
+  // };
+  //
+  // co_self.checkHPos = function(obj2,obj1,x,y){
+  //   if (
+  //     (obj2.posX+obj2.width >= x) &&
+  //     (obj2.posX <= x+obj1.width) &&
+  //     (obj2.posY+obj2.height > y) &&
+  //     (obj2.posY < y+obj1.height)
+  //     )
+  //   {
+  //     return false
+  //   }
+  // };
+
+
+
+
 
 
 
@@ -345,7 +376,8 @@ CanvasObjects = function(canvas){
       wf = co_self.windsForces[id].force;
         for (var i = 0; i < wind_objects.length; i++) {
           if(wind_objects[i].windSpeed > 0){
-            wind_objects[i].setPos(wind_objects[i].posX+wind_objects[i].windSpeed*wf,wind_objects[i].posY)
+
+            wind_objects[i].setPosX(wind_objects[i].posX + wind_objects[i].windSpeed*wf)
           }
         }
     },10,(w_obj.id))
@@ -378,10 +410,8 @@ CanvasObjects = function(canvas){
       for (var i = 0; i < g_objects.length; i++) {
         if(g_objects[i].gravityForce != 0){
 
-            newY =  g_objects[i].posY + g_objects[i].velocityY;
-            g_objects[i].velocityY = g_objects[i].velocityY - (g_objects[i].gravityForce*force)
-
-            g_objects[i].setPos(g_objects[i].posX,newY)
+            newY =  g_objects[i].posY+ g_objects[i].velocityY
+            if(g_objects[i].setPosY(newY)) g_objects[i].velocityY = g_objects[i].velocityY - (g_objects[i].gravityForce*force) ;
 
         }
       }
