@@ -293,7 +293,8 @@ CanvasObjects = function(canvas){
       if((V_objs[i].id != Obj.id) && V_objs[i].solid > 0){
         if(co_self.checkPos(V_objs[i],Obj,Obj.posX,y) == false) {
           if ((Obj.posX+Obj.width != V_objs[i].posX ) && (y != V_objs[i].posY ) ){
-            Obj.posY = (Obj.posY > y) ? V_objs[i].posY+V_objs[i].height+1 : V_objs[i].posY-1
+            Obj.Y_Force = 0;
+            Obj.posY = (Obj.posY > y) ? V_objs[i].posY+V_objs[i].height : V_objs[i].posY
           }
           canMove = false;
         }

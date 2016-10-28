@@ -103,7 +103,7 @@ function start(){
       tempOpts = {
         type: 'mapObject',
         posX: (i == 0) ? 0 : (i*100),
-        posY: -50,
+        posY: 0,
         width: 100,
         solid: 1,
         height: 100,
@@ -163,8 +163,7 @@ function start(){
       width: 20,
       height: 50,
       masa: 1,
-      solid:1,
-      static:1
+      solid:1
     };
 
     person2 = OBJ_MANAGER.createObject(personOpt2);
@@ -184,7 +183,7 @@ function start(){
     CE = new CanvasEvents(CC.canvas.c);
 
     left =  { keyCode  : 37, function : leftMove, delay : 20 }
-    up =    { keyCode  : 38, function : jump, delay : 20 }
+    up =    { keyCode  : 38, function : jump, delay : 1000 }
     right = { keyCode  : 39, function : rightMove, delay : 20 }
 
     function leftMove() {
@@ -192,7 +191,7 @@ function start(){
     }
 
     function jump() {
-      ME.Y_Force = 10 
+      ME.Y_Force = 25
     }
 
     function rightMove() {
