@@ -1,4 +1,5 @@
 CanvasObjects = function(canvas){
+  this.gameType = "platform"; // plataform, fromAbove
   co_self = this;
   co_self._mapsimageTotals = -1
   co_self.canvas = canvas;
@@ -184,7 +185,7 @@ CanvasObjects = function(canvas){
       Y_Force:0,
       X_Force:0,
       wind_resistence:0,
-      mass:0,
+      mass:0, // if hass always > 1
       getMasa: function(){
         return this.mass;
       },
@@ -221,21 +222,24 @@ CanvasObjects = function(canvas){
       posX: 0,
       posY: 0,
       drawPosX: function(mapX){
-        if(this.type == "mapObject") return this.posX - mapX
+        if(this.type == "mapObject" && co_self.gameType != "platform" ) return this.posX - mapX
         if(this.type == "mapObjectFocus"){
           mapX = (typeof mapX == "undefined") ? 1 : mapX
           return (co_self.focusEnabled ) ? (this.posX - co_self.focusedObject.posX + co_self.focusedObject.startPosX)*mapX : (this.posX)*mapX;
-
         }
         return (co_self.focusEnabled ) ? this.posX - co_self.focusedObject.posX + co_self.focusedObject.startPosX : this.posX;
       },
       drawPosY: function(mapY){
-        if(this.type == "mapObject") return co_self.fixHeightInvert(this.posY - mapY,this.height)
+        if(this.type == "mapObject" && co_self.gameType != "platform" ) return co_self.fixHeightInvert(this.posY - mapY,this.height)
         if(this.type == "mapObjectFocus") {
-          mapY = (typeof mapY == "undefined") ? 1 : mapY
+           mapY = (typeof mapY == "undefined") ? 1 : mapY
            return (co_self.focusEnabled) ? co_self.fixHeightInvert(this.posY - co_self.focusedObject.posY + co_self.focusedObject.startPosY,this.height)*mapY :  co_self.fixHeightInvert(this.posY,this.height)*mapY;
         }
-        return (co_self.focusEnabled) ? co_self.fixHeightInvert(this.posY - co_self.focusedObject.posY + co_self.focusedObject.startPosY,this.height) :  co_self.fixHeightInvert(this.posY,this.height);
+        if(co_self.gameType == "platform"){
+          return  co_self.fixHeightInvert(this.posY,this.height);
+        }else{
+          return (co_self.focusEnabled) ? co_self.fixHeightInvert(this.posY - co_self.focusedObject.posY + co_self.focusedObject.startPosY,this.height) :  co_self.fixHeightInvert(this.posY,this.height);
+        }
       },
       focusPosX: 0,
       focusPosY: 0,
@@ -366,7 +370,7 @@ CanvasObjects = function(canvas){
       wind_objects = co_self.objectsByLayer[layer];
 
       for (var i = 0; i < wind_objects.length; i++) {
-        wind_objects[i].X_Force = co_self.windsForces[id].force / (wind_objects[i].mass+1);
+        wind_objects[i].X_Force = co_self.windsForces[id].force * wind_objects[i].windSpeed+1;
 
         // if(wind_objects[i].layer != layer ) console.log(wind_objects[i].name)
         if(wind_objects[i].X_Force > 0){

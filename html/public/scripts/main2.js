@@ -33,6 +33,7 @@ function start(){
     OBJ_MANAGER = new CanvasObjects(CC.canvas);
     CC.objectsToDraw = OBJ_MANAGER.getAllObjects;
 
+
     MAP = OBJ_MANAGER.createMap("backMap");
     MAP.setType("objects");
     MAP.setViewportY(200);
@@ -157,7 +158,8 @@ function start(){
       CC.canvas.ctx.fillRect(ME.drawPosX(),ME.drawPosY(),ME.width,ME.height)
       CC.canvas.ctx.fillStyle = "black";
     }
-    // OBJ_MANAGER.setFocus(ME); ACA ME QUEDE
+    OBJ_MANAGER.setFocus(ME);
+    OBJ_MANAGER.gameType = "platform";
 
     personOpt2 = {
       name:"person2",
@@ -180,7 +182,7 @@ function start(){
 
 
     WIND1 = OBJ_MANAGER.startWind(0);
-    WIND1.setWindForce(0.5);
+    WIND1.setWindForce(0.1);
 
     OBJ_MANAGER.startXFORCES(1);
 
