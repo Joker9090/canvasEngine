@@ -49,7 +49,8 @@ function start(){
          posX: x,
          posY: y,
          width: 100,
-         masa: 0,
+         layer:0,
+         mass: 0,
          solid: 0,
          height: 50,
          startSpriteX: 0,
@@ -92,22 +93,23 @@ function start(){
 
     //FloorGrass
 
-    MAP2 = OBJ_MANAGER.createMap("backMap");
+    MAP2 = OBJ_MANAGER.createMap("solidMap");
+    MAP2.setLayer(1);
     MAP2.setType("objects");
     MAP2.setViewportY(200);
     MAP2.setViewportX(200);
-    MAP2.layer = 1;
 
     grassBlocks = Array();
     for (var i = 0; i < 18; i++) {
       tempOpts = {
         type: 'mapObject',
-        posX: (i == 0) ? 0 : (i*100),
-        posY: 0,
-        width: 100,
+        name: "grass",
+        posX: (i == 0) ? 0 : (i*50),
+        posY: 50,
+        width: 50,
         solid: 1,
-        height: 100,
-        masa: 0,
+        static: 1,
+        height: 50,
         startSpriteX: 206,
         startSpriteY: 10,
         endSpriteX: 60,
@@ -123,8 +125,8 @@ function start(){
             a.startSpriteY,
             a.endSpriteX,
             a.endSpriteY,
-            a.drawPosX(MAP.posX),
-            a.drawPosY(MAP.posY),
+            a.drawPosX(MAP2.posX),
+            a.drawPosY(MAP2.posY),
             a.width,
             a.height
           );
@@ -143,8 +145,10 @@ function start(){
       layer: 1,
       width: 20,
       height: 50,
-      masa: 1,
-      solid:1
+      mass:1,
+      // wind_resistence: 1,
+      solid:1,
+      static:0
     };
 
     ME = OBJ_MANAGER.createObject(MEOpt);
@@ -153,17 +157,18 @@ function start(){
       CC.canvas.ctx.fillRect(ME.drawPosX(),ME.drawPosY(),ME.width,ME.height)
       CC.canvas.ctx.fillStyle = "black";
     }
-
+    // OBJ_MANAGER.setFocus(ME); ACA ME QUEDE
 
     personOpt2 = {
       name:"person2",
-      posX: 600,
-      posY: 150,
+      posX: 300,
+      posY: 250,
       layer: 1,
       width: 20,
       height: 50,
-      masa: 1,
-      solid:1
+      // wind_resistence: 1,
+      solid:1,
+      static:0
     };
 
     person2 = OBJ_MANAGER.createObject(personOpt2);
@@ -177,26 +182,26 @@ function start(){
     WIND1 = OBJ_MANAGER.startWind(0);
     WIND1.setWindForce(0.5);
 
+    OBJ_MANAGER.startXFORCES(1);
+
     GRAVITY2 = OBJ_MANAGER.startGravity(1);
     GRAVITY2.setGravity(9.8)
 
+
+
     CE = new CanvasEvents(CC.canvas.c);
 
-    left =  { keyCode  : 37, function : leftMove, delay : 20 }
-    up =    { keyCode  : 38, function : jump, delay : 1000 }
-    right = { keyCode  : 39, function : rightMove, delay : 20 }
+    left =  { keyCode  : 37, function : leftMove, keyReleaseFunction:leftMoveStop, delay : 20 }
+    up =    { keyCode  : 38, function : jump, delay : 500, block: true }
+    right = { keyCode  : 39, function : rightMove, keyReleaseFunction:rightMoveStop, delay : 20 }
 
-    function leftMove() {
-      ME.setPosX(ME.posX - 1);
-    }
+    function leftMove() { ME.X_Force = (ME.X_Force > -5) ? ME.X_Force+(-0.5) : ME.X_Force+0 }
+    function leftMoveStop(){ ME.X_Force = 0; }
 
-    function jump() {
-      ME.Y_Force = 25
-    }
+    function jump() { ME.Y_Force = 15 }
 
-    function rightMove() {
-      ME.setPosX(ME.posX + 1);
-    }
+    function rightMove() { ME.X_Force = (ME.X_Force < 5) ? ME.X_Force+(0.5) : ME.X_Force+0 }
+    function rightMoveStop(){ ME.X_Force = 0; }
 
     CE.addKeyEvent(left);
     CE.addKeyEvent(right);

@@ -8,6 +8,7 @@ CanvasEvents = function(){
         tempObj = {
           keyCode  : k,
           function : fn,
+          block : false,
           delay: 500
         };
         ce_self.parseObjectKeyEvent(tempObj);
@@ -22,16 +23,23 @@ CanvasEvents = function(){
         if(typeof ce_self.KeyEventsIntervals[e.keyCode] == "undefined" ){
           ce_self.KeyEvents[e.keyCode].function();
           ce_self.KeyEventsIntervals[e.keyCode] = setInterval(function(keyCode){
-            ce_self.KeyEvents[keyCode].function();
+            if(ce_self.KeyEvents[keyCode].block == true){
+                clearInterval(ce_self.KeyEventsIntervals[keyCode])
+                ce_self.KeyEventsIntervals[e.keyCode] = undefined;
+                if(typeof ce_self.KeyEvents[e.keyCode].endAction == "function") ce_self.KeyEvents[e.keyCode].endAction();
+            }else{
+              ce_self.KeyEvents[keyCode].function();
+            }
          },ce_self.KeyEvents[e.keyCode].delay,(e.keyCode))
         }
       }
     }
     window.onkeyup = function(e){
-      if(typeof ce_self.KeyEvents[e.keyCode] == "object") {
+      if(typeof ce_self.KeyEvents[e.keyCode] == "object" && ce_self.KeyEvents[e.keyCode].block != true) {
         if(typeof ce_self.KeyEventsIntervals[e.keyCode] != "undefined"){
           clearInterval(ce_self.KeyEventsIntervals[e.keyCode])
           ce_self.KeyEventsIntervals[e.keyCode] = undefined;
+          if(typeof ce_self.KeyEvents[e.keyCode].keyReleaseFunction == "function") ce_self.KeyEvents[e.keyCode].keyReleaseFunction();
         }
       }
     }
