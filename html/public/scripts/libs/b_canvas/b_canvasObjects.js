@@ -28,12 +28,16 @@ CanvasObjects = function(canvas){
         this.layer = v;
       },
       velocityX:0,
-      velocityY:0,
-      gravityForce:0,
+      Y_Force:0,
+      masa:0,
+      getMasa: function(){
+        return this.masa;
+      },
       extraForce:0,
       extraForceAngle:0,
       windSpeed:0,
       solid:0,
+      static: 0,
       canRemove: 0,
       remove: "",
       name : (typeof name == undefined ) ? "map" : name,
@@ -152,6 +156,7 @@ CanvasObjects = function(canvas){
         this.posY = y;
       },
       setPosX : function(x){
+        if(this.static == 1) return false;
         if(co_self.checkHorizontalColision(this,x)){
           this.posX = x;
           return true
@@ -159,6 +164,7 @@ CanvasObjects = function(canvas){
         return false;
       },
       setPosY : function(y){
+        if(this.static == 1) return false;
         if(co_self.checkVerticalColision(this,y)){
           this.posY = y;
           return true;
@@ -170,12 +176,17 @@ CanvasObjects = function(canvas){
       focus: false,
       weight: 0,
       velocityX:0,
-      velocityY:0,
-      gravityForce:0,
+      Y_Force:0,
+      masa:0,
+      masa:0,
+      getMasa: function(){
+        return this.masa;
+      },
       extraForce:0,
       extraForceAngle:0,
       windSpeed:0,
       solid:1,
+      static: 0,
       canRemove: 0,
       remove: "",
       id: co_self._mapsimageTotals,
@@ -282,7 +293,7 @@ CanvasObjects = function(canvas){
       if((V_objs[i].id != Obj.id) && V_objs[i].solid > 0){
         if(co_self.checkPos(V_objs[i],Obj,Obj.posX,y) == false) {
           if ((Obj.posX+Obj.width != V_objs[i].posX ) && (y != V_objs[i].posY ) ){
-            Obj.posY = (Obj.posY > y) ? V_objs[i].posY+V_objs[i].height : V_objs[i].posY
+            Obj.posY = (Obj.posY > y) ? V_objs[i].posY+V_objs[i].height+1 : V_objs[i].posY-1
           }
           canMove = false;
         }
@@ -301,7 +312,7 @@ CanvasObjects = function(canvas){
         if(co_self.checkPos(H_objs[i],Obj,x,Obj.posY) == false) {
 
           if ((x+Obj.width != H_objs[i].posX ) && (Obj.posY != H_objs[i].posY ) ){
-            Obj.posX = (Obj.posX > x) ? H_objs[i].posX+H_objs[i].width : H_objs[i].posX
+            Obj.posX = (Obj.posX > x) ? H_objs[i].posX+H_objs[i].width+1 : H_objs[i].posX-1
           };
           canMove = false;
         }
@@ -324,35 +335,6 @@ CanvasObjects = function(canvas){
       return false
     }
   };
-
-  // co_self.checkVPos = function(obj2,obj1,x,y){
-  //   if (
-  //     (obj2.posX+obj2.width > x) &&
-  //     (obj2.posX < x+obj1.width) &&
-  //     (obj2.posY+obj2.height >= y) &&
-  //     (obj2.posY <= y+obj1.height)
-  //     )
-  //   {
-  //     return false
-  //   }
-  // };
-  //
-  // co_self.checkHPos = function(obj2,obj1,x,y){
-  //   if (
-  //     (obj2.posX+obj2.width >= x) &&
-  //     (obj2.posX <= x+obj1.width) &&
-  //     (obj2.posY+obj2.height > y) &&
-  //     (obj2.posY < y+obj1.height)
-  //     )
-  //   {
-  //     return false
-  //   }
-  // };
-
-
-
-
-
 
 
   co_self.windsForcesIds = -1;
@@ -396,9 +378,9 @@ CanvasObjects = function(canvas){
     g_obj.name = "GRAVITY";
     g_obj.id = co_self.gravityForcesIds;
     g_obj.layer = l;
-    g_obj.force = 9.8/10
+    g_obj.force = (9.8/10)*(-1)
     g_obj.setGravity = function(newVal){
-      this.force = newVal/10
+      this.force = (newVal/10)*(-1)
     };
     co_self.gravityForces[g_obj.id] = g_obj;
 
@@ -408,10 +390,10 @@ CanvasObjects = function(canvas){
       g_objects = co_self.objectsByLayer[layer];
 
       for (var i = 0; i < g_objects.length; i++) {
-        if(g_objects[i].gravityForce != 0){
+        if(g_objects[i].getMasa() != 0){
+            newY =  g_objects[i].posY+(g_objects[i].Y_Force*g_objects[i].getMasa())
 
-            newY =  g_objects[i].posY+ g_objects[i].velocityY
-            if(g_objects[i].setPosY(newY)) g_objects[i].velocityY = g_objects[i].velocityY - (g_objects[i].gravityForce*force) ;
+            if(g_objects[i].setPosY(newY)) g_objects[i].Y_Force = g_objects[i].Y_Force + (g_objects[i].getMasa()*force) ;
 
         }
       }

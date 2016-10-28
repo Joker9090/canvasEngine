@@ -49,7 +49,7 @@ function start(){
          posX: x,
          posY: y,
          width: 100,
-         gravityForce: 0,
+         masa: 0,
          solid: 0,
          height: 50,
          startSpriteX: 0,
@@ -107,7 +107,7 @@ function start(){
         width: 100,
         solid: 1,
         height: 100,
-        gravityForce: 0,
+        masa: 0,
         startSpriteX: 206,
         startSpriteY: 10,
         endSpriteX: 60,
@@ -143,7 +143,7 @@ function start(){
       layer: 1,
       width: 20,
       height: 50,
-      gravityForce: 0.35,
+      masa: 1,
       solid:1
     };
 
@@ -155,7 +155,6 @@ function start(){
     }
 
 
-
     personOpt2 = {
       name:"person2",
       posX: 600,
@@ -163,8 +162,9 @@ function start(){
       layer: 1,
       width: 20,
       height: 50,
-      gravityForce: 0.1,
-      solid:1
+      masa: 1,
+      solid:1,
+      static:1
     };
 
     person2 = OBJ_MANAGER.createObject(personOpt2);
@@ -192,7 +192,7 @@ function start(){
     }
 
     function jump() {
-      ME.velocityY = -200 // ACA ME QUEDE
+      ME.Y_Force = 10 
     }
 
     function rightMove() {
@@ -201,6 +201,7 @@ function start(){
 
     CE.addKeyEvent(left);
     CE.addKeyEvent(right);
+    CE.addKeyEvent(up);
 
 
   });
