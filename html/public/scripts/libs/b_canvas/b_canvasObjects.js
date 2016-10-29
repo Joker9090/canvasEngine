@@ -321,7 +321,7 @@ CanvasObjects = function(canvas){
     for (var i = 0; i < H_objs.length; i++) {
       if((H_objs[i].id != Obj.id) && H_objs[i].solid > 0){
         if(co_self.checkPos(H_objs[i],Obj,x,Obj.posY) == false) {
-          Obj.posX = (Obj.posX > x) ? H_objs[i].posX+H_objs[i].width : H_objs[i].posX-H_objs[i].width
+          Obj.posX = (Obj.posX > x) ? H_objs[i].posX+H_objs[i].width : H_objs[i].posX-Obj.width
           Obj.X_Force = 0;
           canMove = false;
         }
@@ -411,9 +411,11 @@ CanvasObjects = function(canvas){
         if(g_objects[i].static == 0 ){
           newY =  g_objects[i].posY+g_objects[i].Y_Force
           if(g_objects[i].Y_Force != 0 && g_objects[i].Y_Force > 0){
-            if(g_objects[i].setPosY(newY)) g_objects[i].Y_Force = (g_objects[i].Y_Force + gravityForce)/ ((g_objects[i].mass > 0) ? g_objects[i].mass : 1) ;
+            //JUMP
+            if(g_objects[i].setPosY(newY)) g_objects[i].Y_Force = (g_objects[i].Y_Force + gravityForce) / ((g_objects[i].mass > 0) ? g_objects[i].mass : 1) ;
           }else{
-            if(g_objects[i].setPosY(newY)) g_objects[i].Y_Force = (g_objects[i].Y_Force + gravityForce)/ ((g_objects[i].wind_resistence > 0) ? g_objects[i].wind_resistence : 1) ;
+            //FALLING
+            if(g_objects[i].setPosY(newY)) g_objects[i].Y_Force = (g_objects[i].Y_Force + gravityForce) / ((g_objects[i].wind_resistence > 0) ? g_objects[i].wind_resistence : 1) ;
           }
         }
       }

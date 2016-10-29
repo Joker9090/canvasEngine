@@ -142,12 +142,12 @@ function start(){
     MEOpt = {
       name:"me",
       posX: 200,
-      posY: 150,
+      posY: 450,
       layer: 1,
       width: 20,
       height: 50,
       mass:1,
-      // wind_resistence: 1,
+      // wind_resistence: 5,
       solid:1,
       static:0
     };
@@ -166,9 +166,10 @@ function start(){
       posX: 300,
       posY: 250,
       layer: 1,
-      width: 20,
+      width: 200,
       height: 50,
-      // wind_resistence: 1,
+      mass: 1,
+      wind_resistence: 5,
       solid:1,
       static:0
     };
@@ -182,7 +183,7 @@ function start(){
 
 
     WIND1 = OBJ_MANAGER.startWind(0);
-    WIND1.setWindForce(0.1);
+    WIND1.setWindForce(0.2);
 
     OBJ_MANAGER.startXFORCES(1);
 
@@ -200,7 +201,7 @@ function start(){
     function leftMove() { ME.X_Force = (ME.X_Force > -5) ? ME.X_Force+(-0.5) : ME.X_Force+0 }
     function leftMoveStop(){ ME.X_Force = 0; }
 
-    function jump() { ME.Y_Force = 15 }
+    function jump() { ME.Y_Force = 20 }
 
     function rightMove() { ME.X_Force = (ME.X_Force < 5) ? ME.X_Force+(0.5) : ME.X_Force+0 }
     function rightMoveStop(){ ME.X_Force = 0; }
