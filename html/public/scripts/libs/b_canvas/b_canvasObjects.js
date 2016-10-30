@@ -8,6 +8,9 @@ CanvasObjects = function(canvas){
   co_self.objectsByLayer = Array();
 
   co_self.focusEnabled = false;
+  co_self.focusXEnabled = false;
+  co_self.focusYEnabled = false;
+
   co_self.focusedObject = {};
   co_self.getAllObjects = function(){
     newObjectList = Array();
@@ -32,6 +35,7 @@ CanvasObjects = function(canvas){
       velocityX:0,
       Y_Force:0,
       X_Force:0,
+      friction:0,
       wind_resistence:0,
       mass:0,
       getMasa: function(){
@@ -41,6 +45,9 @@ CanvasObjects = function(canvas){
       extraForceAngle:0,
       windSpeed:0,
       solid:0,
+      XContactFunction: "",
+      YContactFunction: "",
+      ContactFunction: "",
       static: 1,
       canRemove: 0,
       remove: "",
@@ -179,11 +186,13 @@ CanvasObjects = function(canvas){
       },
       name: "",
       canDraw: 1,
-      focus: false,
+      focus_y: false,
+      focus_x: false,
       weight: 0,
       velocityX:0,
       Y_Force:0,
       X_Force:0,
+      friction:0,
       wind_resistence:0,
       mass:0, // if hass always > 1
       getMasa: function(){
@@ -192,6 +201,9 @@ CanvasObjects = function(canvas){
       extraForce:0,
       extraForceAngle:0,
       windSpeed:0,
+      XContactFunction: "",
+      YContactFunction: "",
+      ContactFunction: "",
       solid:1,
       static: 0,
       canRemove: 0,
@@ -221,25 +233,23 @@ CanvasObjects = function(canvas){
       startPosY: 0,
       posX: 0,
       posY: 0,
-      drawPosX: function(mapX){
-        if(this.type == "mapObject" && co_self.gameType != "platform" ) return this.posX - mapX
-        if(this.type == "mapObjectFocus"){
-          mapX = (typeof mapX == "undefined") ? 1 : mapX
-          return (co_self.focusEnabled ) ? (this.posX - co_self.focusedObject.posX + co_self.focusedObject.startPosX)*mapX : (this.posX)*mapX;
-        }
-        return (co_self.focusEnabled ) ? this.posX - co_self.focusedObject.posX + co_self.focusedObject.startPosX : this.posX;
+      drawPosX: function(){
+        // if(this.type == "mapObject" && co_self.gameType != "platform" ) return this.posX
+        if(this.type == "mapObjectNotFocused") return this.posX
+        // if(this.type == "mapObjectFocus"){
+        //   mapX = (typeof mapX == "undefined") ? 1 : mapX
+        //   return (co_self.focusXEnabled ) ? (this.posX - co_self.focusedObject.posX + co_self.focusedObject.startPosX)*mapX : (this.posX)*mapX;
+        // }
+        return (co_self.focusXEnabled ) ? this.posX - co_self.focusedObject.posX + co_self.focusedObject.startPosX : this.posX;
       },
-      drawPosY: function(mapY){
-        if(this.type == "mapObject" && co_self.gameType != "platform" ) return co_self.fixHeightInvert(this.posY - mapY,this.height)
-        if(this.type == "mapObjectFocus") {
-           mapY = (typeof mapY == "undefined") ? 1 : mapY
-           return (co_self.focusEnabled) ? co_self.fixHeightInvert(this.posY - co_self.focusedObject.posY + co_self.focusedObject.startPosY,this.height)*mapY :  co_self.fixHeightInvert(this.posY,this.height)*mapY;
-        }
-        if(co_self.gameType == "platform"){
-          return  co_self.fixHeightInvert(this.posY,this.height);
-        }else{
-          return (co_self.focusEnabled) ? co_self.fixHeightInvert(this.posY - co_self.focusedObject.posY + co_self.focusedObject.startPosY,this.height) :  co_self.fixHeightInvert(this.posY,this.height);
-        }
+      drawPosY: function(){
+        // if(this.type == "mapObject" && co_self.gameType != "platform" ) return co_self.fixHeightInvert(this.posY,this.height)
+        if(this.type == "mapObjectNotFocused") return co_self.fixHeightInvert(this.posY,this.height)
+        // if(this.type == "mapObjectFocus") {
+        //    mapY = (typeof mapY == "undefined") ? 1 : mapY
+        //    return (co_self.focusYEnabled) ? co_self.fixHeightInvert(this.posY - co_self.focusedObject.posY + co_self.focusedObject.startPosY,this.height)*mapY :  co_self.fixHeightInvert(this.posY,this.height)*mapY;
+        // }
+        return  (co_self.focusYEnabled) ? co_self.fixHeightInvert(this.posY - co_self.focusedObject.posY + co_self.focusedObject.startPosY,this.height) : co_self.fixHeightInvert(this.posY,this.height);
       },
       focusPosX: 0,
       focusPosY: 0,
@@ -278,21 +288,33 @@ CanvasObjects = function(canvas){
 
   }
 
-  co_self.setFocus = function(obj){
+
+  co_self.setXFocus = function(obj){
     o = co_self.getAllObjects()
-    co_self.focusEnabled = true;
+    co_self.focusXEnabled = true;
     for (var i = 0; i < o.length; i++) {
       if((o[i].id == obj.id)){
-        o[i].focus = true;
+        o[i].focus_x = true;
         co_self.focusedObject = obj;
         o[i].focusPosX = o[i].posX;
-        o[i].focusPosY = o[i].posY
       }else{
-        o[i].focus = false;
+        o[i].focus_x = false;
       }
     }
   }
-
+  co_self.setYFocus = function(obj){
+    o = co_self.getAllObjects()
+    co_self.focusYEnabled = true;
+    for (var i = 0; i < o.length; i++) {
+      if((o[i].id == obj.id)){
+        o[i].focus_y = true;
+        co_self.focusedObject = obj;
+        o[i].focusPosY = o[i].posY;
+      }else{
+        o[i].focus_y = false;
+      }
+    }
+  }
 
   co_self.checkVerticalColision = function(Obj,y){
     if(Obj.solid == 0) return true;
@@ -302,12 +324,19 @@ CanvasObjects = function(canvas){
     for (var i = 0; i < V_objs.length; i++) {
       if((V_objs[i].id != Obj.id) && V_objs[i].solid > 0){
         if(co_self.checkPos(V_objs[i],Obj,Obj.posX,y) == false) {
-            Obj.posY = (Obj.posY > y) ? V_objs[i].posY+V_objs[i].height : V_objs[i].posY-V_objs[i].height
+            if (Obj.posY > y) {
+              Obj.posY = V_objs[i].posY+Obj.height
+              if(typeof Obj.YContactFunction == "function") Obj.YContactFunction(V_objs[i],"down")
+              if(typeof Obj.ContactFunction == "function") Obj.ContactFunction(V_objs[i],"down")
+            }else{
+              Obj.posY = V_objs[i].posY-V_objs[i].height
+              if(typeof Obj.YContactFunction == "function") Obj.YContactFunction(V_objs[i],"up")
+              if(typeof Obj.ContactFunction == "function") Obj.ContactFunction(V_objs[i],"up")
+            }
             Obj.Y_Force = 0;
-
-
           canMove = false;
         }
+        // console.log(1)
       }
     }
     return canMove
@@ -321,7 +350,15 @@ CanvasObjects = function(canvas){
     for (var i = 0; i < H_objs.length; i++) {
       if((H_objs[i].id != Obj.id) && H_objs[i].solid > 0){
         if(co_self.checkPos(H_objs[i],Obj,x,Obj.posY) == false) {
-          Obj.posX = (Obj.posX > x) ? H_objs[i].posX+H_objs[i].width : H_objs[i].posX-Obj.width
+          if (Obj.posX > x) {
+            Obj.posX = H_objs[i].posX+H_objs[i].width
+            if(typeof Obj.XContactFunction == "function") Obj.XContactFunction(V_objs[i],"left")
+            if(typeof Obj.ContactFunction == "function") Obj.ContactFunction(V_objs[i],"left")
+          }else{
+            Obj.posX = H_objs[i].posX-Obj.width
+            if(typeof Obj.XContactFunction == "function") Obj.XContactFunction(V_objs[i],"right")
+            if(typeof Obj.ContactFunction == "function") Obj.ContactFunction(V_objs[i],"right")
+          }
           Obj.X_Force = 0;
           canMove = false;
         }
@@ -337,11 +374,14 @@ CanvasObjects = function(canvas){
     if (
       (obj2.posX+obj2.width > x) &&
       (obj2.posX < x+obj1.width) &&
-      (obj2.posY < y+obj1.height) &&
-      (obj2.posY+obj2.height > y)
+
+      (obj2.posY < y+obj2.height) &&
+      (obj2.posY+obj1.height > y)
       )
     {
       return false
+    }else{
+      return true
     }
   };
 
@@ -413,7 +453,7 @@ CanvasObjects = function(canvas){
           if(g_objects[i].Y_Force != 0 && g_objects[i].Y_Force > 0){
             //JUMP
             if(g_objects[i].setPosY(newY)) g_objects[i].Y_Force = (g_objects[i].Y_Force + gravityForce) / ((g_objects[i].mass > 0) ? g_objects[i].mass : 1) ;
-          }else{
+          }else {
             //FALLING
             if(g_objects[i].setPosY(newY)) g_objects[i].Y_Force = (g_objects[i].Y_Force + gravityForce) / ((g_objects[i].wind_resistence > 0) ? g_objects[i].wind_resistence : 1) ;
           }
@@ -440,9 +480,21 @@ CanvasObjects = function(canvas){
       layer = co_self.XFORCES[id].layer;
       XForces_objects = co_self.objectsByLayer[layer];
       for (var i = 0; i < XForces_objects.length; i++) {
-        if(XForces_objects[i].X_Force != 0){
-          XForces_objects[i].setPosX(XForces_objects[i].posX + XForces_objects[i].X_Force)
+        // if(XForces_objects[i].X_Force != 0 && g_objects[i].Y_Force > 0){
+        //   XForces_objects[i].setPosX(XForces_objects[i].posX + XForces_objects[i].X_Force)
+        // }
+        if(XForces_objects[i].static == 0 ){
+          newX =  XForces_objects[i].posX+XForces_objects[i].X_Force
+          if(XForces_objects[i].X_Force != 0 && XForces_objects[i].X_Force > 0){
+            //RIGHT
+            if(XForces_objects[i].setPosX(newX)) XForces_objects[i].X_Force = (XForces_objects[i].X_Force + (XForces_objects[i].friction*(-1)/100)  )  ;
+          }else if(XForces_objects[i].X_Force != 0 && XForces_objects[i].X_Force < 0){
+            //LEFT
+            if(XForces_objects[i].setPosX(newX)) XForces_objects[i].X_Force = (XForces_objects[i].X_Force + (XForces_objects[i].friction/100) ) ;
+          }
         }
+
+
       }
 
     },10,(xf_obj.id))
@@ -450,5 +502,65 @@ CanvasObjects = function(canvas){
     return xf_obj;
 
   }
+
+
+  co_self.EXTRAFORCESIds = -1;
+  co_self.EXTRAFORCES = Array();
+  co_self.EXTRAFORCESInterval = Array();
+  co_self.startEXTRAFORCES = function(l,axis,type){
+    co_self.EXTRAFORCESIds++;
+    extraxf_obj = {};
+    extraxf_obj.name = "EXTRA_FORCE";
+    extraxf_obj.id = co_self.EXTRAFORCESIds;
+    extraxf_obj.layer = l;
+    extraxf_obj.axis = axis;
+    extraxf_obj.force = 1;
+    extraxf_obj.type = type; // acelerate , constant
+    extraxf_obj.setForce = function(newVal){
+      this.force = newVal;
+    }
+
+    co_self.EXTRAFORCES[extraxf_obj.id] = extraxf_obj;
+
+    co_self.EXTRAFORCESInterval[extraxf_obj.id] = setInterval(function(id){
+      layer = co_self.EXTRAFORCES[id].layer;
+      axis = co_self.EXTRAFORCES[id].axis;
+      force = co_self.EXTRAFORCES[id].force;
+      EXTRAForces_objects = co_self.objectsByLayer[layer];
+      for (var i = 0; i < EXTRAForces_objects.length; i++) {
+        if(EXTRAForces_objects[i].static == 0 ){
+          if(axis == "x"){
+            if(type == "acelerate"){
+              EXTRAForces_objects[i].X_Force+= force;
+            }else{
+              if(force > 0 && EXTRAForces_objects[i].X_Force < force){
+                EXTRAForces_objects[i].X_Force+= force;
+              }else if(force < 0 && EXTRAForces_objects[i].X_Force > force){
+                EXTRAForces_objects[i].X_Force+= force
+              };
+            }
+          }else if(axis == "y"){
+            if(type == "acelerate"){
+              EXTRAForces_objects[i].Y_Force+= force
+            }else{
+              if(force > 0 && EXTRAForces_objects[i].Y_Force < force){
+                 EXTRAForces_objects[i].Y_Force+= force;
+              }else if(force < 0 && EXTRAForces_objects[i].Y_Force > force){
+                EXTRAForces_objects[i].Y_Force+= force
+              };
+            }
+          }
+
+        }
+
+
+      }
+
+    },10,(extraxf_obj.id))
+
+    return extraxf_obj;
+
+  }
+
 
 }

@@ -45,7 +45,7 @@ function start(){
     createCloud = function(x,y,ac){
       tempOpts = {
         name: 'nube',
-         type: 'mapObject', // mapObjectFocus , mapObject
+         type: 'mapObject', // mapObjectNotFocused , mapObject
          blockId: cloudBlock.length,
          posX: x,
          posY: y,
@@ -137,19 +137,60 @@ function start(){
 
     }
 
+    grassBlocks1 = Array()
+    for (var i = 0; i < 6; i++) {
+      tempOpts1 = {
+        type: 'mapObject',
+        name: "grass1",
+        posX: (i == 0) ? 250 : (i*200)+ 250,
+        posY: 490,
+        width: 70,
+        height: 70,
+        solid: 1,
+        static: 0,
+        startSpriteX: 330,
+        startSpriteY: 10,
+        endSpriteX: 60,
+        endSpriteY: 60
+      }
+      grassBlocks1[i] = OBJ_MANAGER.createObject(tempOpts1);
 
+      grassBlocks1[i].setImgSrc("html/public/img/textures.png",function(a){
+        grassBlocks1[i].draw = function(){
+          CC.canvas.ctx.drawImage(
+            a.img,
+            a.startSpriteX,
+            a.startSpriteY,
+            a.endSpriteX,
+            a.endSpriteY,
+            a.drawPosX(MAP2.posX),
+            a.drawPosY(MAP2.posY),
+            a.width,
+            a.height
+          );
+        }
+      })
+      MAP2.addObject(grassBlocks1[i]);
 
+    }
     MEOpt = {
       name:"me",
       posX: 200,
-      posY: 450,
+      posY: 100,
+      friction:25,
       layer: 1,
       width: 20,
       height: 50,
       mass:1,
       // wind_resistence: 5,
       solid:1,
-      static:0
+      static:0,
+      XContactFunction: function(otherObj,direction){
+        console.log(otherObj.name+" "+direction)
+      },
+      YContactFunction: function(otherObj,direction){
+        console.log(otherObj.name+" "+direction)
+      }
     };
 
     ME = OBJ_MANAGER.createObject(MEOpt);
@@ -158,8 +199,10 @@ function start(){
       CC.canvas.ctx.fillRect(ME.drawPosX(),ME.drawPosY(),ME.width,ME.height)
       CC.canvas.ctx.fillStyle = "black";
     }
-    OBJ_MANAGER.setFocus(ME);
-    OBJ_MANAGER.gameType = "platform";
+
+    OBJ_MANAGER.setXFocus(ME);
+    OBJ_MANAGER.setYFocus(ME);
+
 
     personOpt2 = {
       name:"person2",
@@ -175,6 +218,7 @@ function start(){
     };
 
     person2 = OBJ_MANAGER.createObject(personOpt2);
+
     person2.draw = function(){
       CC.canvas.ctx.fillStyle = "white";
       CC.canvas.ctx.fillRect(person2.drawPosX(),person2.drawPosY(),person2.width,person2.height)
@@ -190,7 +234,8 @@ function start(){
     GRAVITY2 = OBJ_MANAGER.startGravity(1);
     GRAVITY2.setGravity(9.8)
 
-
+    // ExtraForce = OBJ_MANAGER.startEXTRAFORCES(1,"x","constant")
+    // ExtraForce.setForce(0.3)
 
     CE = new CanvasEvents(CC.canvas.c);
 
@@ -198,13 +243,13 @@ function start(){
     up =    { keyCode  : 38, function : jump, delay : 500, block: true }
     right = { keyCode  : 39, function : rightMove, keyReleaseFunction:rightMoveStop, delay : 20 }
 
-    function leftMove() { ME.X_Force = (ME.X_Force > -5) ? ME.X_Force+(-0.5) : ME.X_Force+0 }
-    function leftMoveStop(){ ME.X_Force = 0; }
+    function leftMove() { ME.X_Force = (ME.X_Force > -10) ? ME.X_Force+(-1) : ME.X_Force+0 }
+    function leftMoveStop(){ }
 
     function jump() { ME.Y_Force = 20 }
 
-    function rightMove() { ME.X_Force = (ME.X_Force < 5) ? ME.X_Force+(0.5) : ME.X_Force+0 }
-    function rightMoveStop(){ ME.X_Force = 0; }
+    function rightMove() { ME.X_Force = (ME.X_Force < 10) ? ME.X_Force+(1) : ME.X_Force+0 }
+    function rightMoveStop(){ }
 
     CE.addKeyEvent(left);
     CE.addKeyEvent(right);
