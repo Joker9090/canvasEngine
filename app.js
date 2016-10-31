@@ -5,7 +5,31 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-// var CanvasObjects = require("CanvasObjects" )
+var ndp = require("npm-demo-pkg");
+var ndp = require("npm-demo-pkg");
+
+CanvasObjects = ndp.CanvasObjects()
+
+tempOpts = {
+   name: 'nube',
+   type: 'mapObject',
+   blockId: 1,
+   posX: 200,
+   posY: 300,
+   width: 100,
+   layer:0,
+   mass: 0,
+   solid: 0,
+   height: 50,
+   startSpriteX: 0,
+   startSpriteY: 0,
+   endSpriteX: 288,
+   endSpriteY: 144
+}
+nube = CanvasObjects.createObject(tempOpts)
+
+
+
 //Logs tunned
 console.slog = function(text){ console.log("[SERVER] "+ text) }
 console.clog = function(text){ console.log("[CLIENT] "+ text) }
@@ -43,8 +67,8 @@ app.get('*', function(req, res){
   routes.makeRoute(req, res) // procesa el request
 });
 
-socketCalls.getCalls(io);
-port = 3002; // puerto para escuchar
+socketCalls.getCalls(io,nube);
+port = 3003; // puerto para escuchar
 http.listen(port, function(){
   console.slog('Escuchando en *:'+port);
 });
