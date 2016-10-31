@@ -302,6 +302,11 @@ CanvasObjects = function(canvas){
       }
     }
   }
+  co_self.cancelXFocus = function(obj){
+    co_self.focusXEnabled = false;
+    obj.focus_x = false;
+  }
+
   co_self.setYFocus = function(obj){
     o = co_self.getAllObjects()
     co_self.focusYEnabled = true;
@@ -314,6 +319,11 @@ CanvasObjects = function(canvas){
         o[i].focus_y = false;
       }
     }
+  }
+
+  co_self.cancelYFocus = function(obj){
+    co_self.focusYEnabled = false;
+    obj.focus_y = false;
   }
 
   co_self.checkVerticalColision = function(Obj,y){
