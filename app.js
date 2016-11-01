@@ -5,7 +5,10 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-var ndp = require("npm-demo-pkg");
+var redis = require('redis'); // Install Redis  http://redis.io/topics/quickstart
+var client = redis.createClient("6379", "127.0.0.1");
+
+
 var ndp = require("npm-demo-pkg");
 
 CanvasObjects = ndp.CanvasObjects()
@@ -55,6 +58,10 @@ app.set('view options', { layout: false }); // layout default activado
 var socketCalls = require( server + '/socketCalls.js' );
 //socket io calls and returns
 
+//Redis Calls
+var redisCalls = require( server + '/redisCalls.js' );
+//Redis Calls
+
 var connections = [];
 
 var controllers = require( server + '/controllers.js' );  // por ahora estan todos los controllers en 1
@@ -67,7 +74,10 @@ app.get('*', function(req, res){
   routes.makeRoute(req, res) // procesa el request
 });
 
-socketCalls.getCalls(io,nube);
+base = redisCalls.getCalls(client)
+socketCalls.getCalls(io,base);
+
+
 port = 3003; // puerto para escuchar
 http.listen(port, function(){
   console.slog('Escuchando en *:'+port);

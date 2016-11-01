@@ -33,29 +33,31 @@ function start(){
     OBJ_MANAGER = new CanvasObjects(CC.canvas);
     CC.objectsToDraw = OBJ_MANAGER.getAllObjects;
 
-    socket.on('/sendNube', function(nube){
+    socket.emit('/playerReady');
 
-      cloudBlock1 = OBJ_MANAGER.createObject(nube);
-      cloudBlock1.setImgSrc("html/public/img/cloud.png",function(a){
-        cloudBlock1.draw = function(){
-          if(a.posX > CC.width) a.remove()
-          if(a.canDraw == 1){
-            CC.canvas.ctx.drawImage(
-            a.img,
-            a.startSpriteX,
-            a.startSpriteY,
-            a.endSpriteX,
-            a.endSpriteY,
-            a.drawPosX(),
-            a.drawPosY(),
-            a.width,
-            a.height
-            );
-          }
-        }
-      });
-    });
-    socket.emit('/getNube')
+    // socket.on('/sendNube', function(nube){
+    //
+    //   cloudBlock1 = OBJ_MANAGER.createObject(nube);
+    //   cloudBlock1.setImgSrc("html/public/img/cloud.png",function(a){
+    //     cloudBlock1.draw = function(){
+    //       if(a.posX > CC.width) a.remove()
+    //       if(a.canDraw == 1){
+    //         CC.canvas.ctx.drawImage(
+    //         a.img,
+    //         a.startSpriteX,
+    //         a.startSpriteY,
+    //         a.endSpriteX,
+    //         a.endSpriteY,
+    //         a.drawPosX(),
+    //         a.drawPosY(),
+    //         a.width,
+    //         a.height
+    //         );
+    //       }
+    //     }
+    //   });
+    // });
+    // socket.emit('/getNube')
 
 
   });
