@@ -13,7 +13,6 @@ module.exports = {
   getCalls: function(client){
     console.slog("Reading Redis calls")
     CLIENT = client;
-
     obj = {};
     obj.setPlayer = function(fn){  getPlayers(function(reply){ fn(reply) }) }
     return obj;
