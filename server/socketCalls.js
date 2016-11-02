@@ -7,9 +7,16 @@ module.exports = {
     io.on('connection', function(socket) {
       socket.emit('/start');
       socket.on('/playerReady' , function(){
-        BASE.setPlayer(function(reply){
-          console.slog(reply);
-        })
+
+
+        console.slog("Sending Stage1")
+        console.slog(BASE.global())
+        BASE.setNewStage();
+        socket.emit('/setStage',BASE.global().client.stages[0]);
+
+        BASE.setNewPlayer();
+        socket.emit('/setPlayers',BASE.global().client.players);
+
       });
 
     });
