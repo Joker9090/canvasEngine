@@ -9,28 +9,7 @@ var redis = require('redis'); // Install Redis  http://redis.io/topics/quickstar
 var client = redis.createClient("6379", "127.0.0.1");
 
 
-var ndp = require("npm-demo-pkg");
-
-
-//
-// tempOpts = {
-//    name: 'nube',
-//    type: 'mapObject',
-//    blockId: 1,
-//    posX: 200,
-//    posY: 300,
-//    width: 100,
-//    layer:0,
-//    mass: 0,
-//    solid: 0,
-//    height: 50,
-//    startSpriteX: 0,
-//    startSpriteY: 0,
-//    endSpriteX: 288,
-//    endSpriteY: 144
-// }
-// nube = CanvasObjects.createObject(tempOpts)
-
+var canvasObject = require("canvas-objects");
 
 
 //Logs tunned
@@ -62,6 +41,10 @@ var socketCalls = require( server + '/socketCalls.js' );
 var redisCalls = require( server + '/redisCalls.js' );
 //Redis Calls
 
+//ObjectWorld Calls
+var worldCalls = require( server + '/worldCalls.js' );
+//ObjectWorld Calls
+
 var connections = [];
 
 var controllers = require( server + '/controllers.js' );  // por ahora estan todos los controllers en 1
@@ -74,9 +57,11 @@ app.get('*', function(req, res){
   routes.makeRoute(req, res) // procesa el request
 });
 
-CanvasObjects = ndp.CanvasObjects()
-base = redisCalls.getCalls(client,CanvasObjects)
-socketCalls.getCalls(io,base);
+CanvasObjects = canvasObject.CanvasObjects();
+base = redisCalls.setRedis(client);
+world = worldCalls.setWorld(CanvasObjects)
+
+socketCalls.getCalls(io,base,world);
 
 
 port = 3003; // puerto para escuchar
