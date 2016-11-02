@@ -11,25 +11,25 @@ var client = redis.createClient("6379", "127.0.0.1");
 
 var ndp = require("npm-demo-pkg");
 
-CanvasObjects = ndp.CanvasObjects()
 
-tempOpts = {
-   name: 'nube',
-   type: 'mapObject',
-   blockId: 1,
-   posX: 200,
-   posY: 300,
-   width: 100,
-   layer:0,
-   mass: 0,
-   solid: 0,
-   height: 50,
-   startSpriteX: 0,
-   startSpriteY: 0,
-   endSpriteX: 288,
-   endSpriteY: 144
-}
-nube = CanvasObjects.createObject(tempOpts)
+//
+// tempOpts = {
+//    name: 'nube',
+//    type: 'mapObject',
+//    blockId: 1,
+//    posX: 200,
+//    posY: 300,
+//    width: 100,
+//    layer:0,
+//    mass: 0,
+//    solid: 0,
+//    height: 50,
+//    startSpriteX: 0,
+//    startSpriteY: 0,
+//    endSpriteX: 288,
+//    endSpriteY: 144
+// }
+// nube = CanvasObjects.createObject(tempOpts)
 
 
 
@@ -74,7 +74,8 @@ app.get('*', function(req, res){
   routes.makeRoute(req, res) // procesa el request
 });
 
-base = redisCalls.getCalls(client)
+CanvasObjects = ndp.CanvasObjects()
+base = redisCalls.getCalls(client,CanvasObjects)
 socketCalls.getCalls(io,base);
 
 

@@ -32,33 +32,61 @@ function start(){
 
     OBJ_MANAGER = new CanvasObjects(CC.canvas);
     CC.objectsToDraw = OBJ_MANAGER.getAllObjects;
+    window.GLOBAL = {};
 
     socket.emit('/playerReady');
+    console.clog("START")
+    socket.on('/setStage',function(obj){
+      console.clog("STAGE READY")
+      console.log(obj)
+      window.GLOBAL.stage = obj;
+      drawSTAGE()
+    });
 
-    // socket.on('/sendNube', function(nube){
-    //
-    //   cloudBlock1 = OBJ_MANAGER.createObject(nube);
-    //   cloudBlock1.setImgSrc("html/public/img/cloud.png",function(a){
-    //     cloudBlock1.draw = function(){
-    //       if(a.posX > CC.width) a.remove()
-    //       if(a.canDraw == 1){
-    //         CC.canvas.ctx.drawImage(
-    //         a.img,
-    //         a.startSpriteX,
-    //         a.startSpriteY,
-    //         a.endSpriteX,
-    //         a.endSpriteY,
-    //         a.drawPosX(),
-    //         a.drawPosY(),
-    //         a.width,
-    //         a.height
-    //         );
-    //       }
-    //     }
-    //   });
-    // });
-    // socket.emit('/getNube')
+    socket.on('/setPlayers',function(obj){
+      console.clog("PLAYER READY")
+      window.GLOBAL.players = obj;
+      drawPlayers()
+    });
+    function drawSTAGE(){
 
+      MAP = OBJ_MANAGER.createMap("solidBlocksLayer");
+      MAP.setLayer(1);
+      MAP.setType("objects");
+
+      for (var i = 0; i < window.GLOBAL.stage.staticBlocks.length; i++) {
+        window.GLOBAL.stage.staticBlocks[i] = OBJ_MANAGER.createObject(window.GLOBAL.stage.staticBlocks[i]);
+
+        window.GLOBAL.stage.staticBlocks[i].setImgSrc(window.GLOBAL.stage.staticBlocks[i].spriteFile,function(a){
+          window.GLOBAL.stage.staticBlocks[i].draw = function(){
+            CC.canvas.ctx.drawImage(
+              a.img,
+              a.startSpriteX,
+              a.startSpriteY,
+              a.endSpriteX,
+              a.endSpriteY,
+              a.drawPosX(),
+              a.drawPosY(),
+              a.width,
+              a.height
+            );
+          }
+        })
+        MAP.addObject(window.GLOBAL.stage.staticBlocks[i]);
+      }
+    }
+
+    function drawPlayers(){
+      for (var i = 0; i < window.GLOBAL.players.length; i++) {
+        window.GLOBAL.players[i] = OBJ_MANAGER.createObject(window.GLOBAL.players[i]);
+        console.log(window.GLOBAL.players[i])
+        window.GLOBAL.players[i].draw = function(){
+          CC.canvas.ctx.fillStyle = "white";
+          CC.canvas.ctx.fillRect(this.drawPosX(),this.drawPosY(),this.width,this.height)
+          CC.canvas.ctx.fillStyle = "black";
+        }
+      }
+    }
 
   });
 
