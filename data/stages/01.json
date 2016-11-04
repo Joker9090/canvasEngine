@@ -1,0 +1,79 @@
+{
+  "staticBlocks": [
+    {
+      "type": "mapObject",
+      "name": "grass",
+      "spriteFile":"html/public/img/textures.png",
+      "posX": 0,
+      "posY": 50,
+      "width": 50,
+      "solid": 1,
+      "static": 1,
+      "height": 50,
+      "startSpriteX": 206,
+      "startSpriteY": 10,
+      "endSpriteX": 60,
+      "endSpriteY": 50
+    },
+    {
+      "type": "mapObject",
+      "name": "grass",
+      "spriteFile":"html/public/img/textures.png",
+      "posX": 50,
+      "posY": 50,
+      "width": 50,
+      "solid": 1,
+      "static": 1,
+      "height": 50,
+      "startSpriteX": 206,
+      "startSpriteY": 10,
+      "endSpriteX": 60,
+      "endSpriteY": 50
+    },
+    {
+      "type": "mapObject",
+      "name": "grass",
+      "spriteFile":"html/public/img/textures.png",
+      "posX": 100,
+      "posY": 50,
+      "width": 50,
+      "solid": 1,
+      "static": 1,
+      "height": 50,
+      "startSpriteX": 206,
+      "startSpriteY": 10,
+      "endSpriteX": 60,
+      "endSpriteY": 50
+    },
+    {
+      "type": "mapObject",
+      "name": "grass",
+      "spriteFile":"html/public/img/textures.png",
+      "posX": 150,
+      "posY": 50,
+      "width": 50,
+      "solid": 1,
+      "static": 1,
+      "height": 50,
+      "startSpriteX": 206,
+      "startSpriteY": 10,
+      "endSpriteX": 60,
+      "endSpriteY": 50
+    } ,
+    {
+      "type": "mapObject",
+      "name": "grass",
+      "spriteFile":"html/public/img/textures.png",
+      "posX": 200,
+      "posY": 50,
+      "width": 50,
+      "solid": 1,
+      "static": 1,
+      "height": 50,
+      "startSpriteX": 206,
+      "startSpriteY": 10,
+      "endSpriteX": 60,
+      "endSpriteY": 50
+    }
+  ]
+}

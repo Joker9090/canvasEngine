@@ -38,16 +38,16 @@ function start(){
     console.clog("START")
     socket.on('/setStage',function(obj){
       console.clog("STAGE READY")
-      console.log(obj)
-      window.GLOBAL.stage = obj;
+      window.GLOBAL.stage = JSON.parse(obj);
       drawSTAGE()
     });
-
-    socket.on('/setPlayers',function(obj){
+    socket.on('/setPlayer',function(obj){
       console.clog("PLAYER READY")
-      window.GLOBAL.players = obj;
+      window.GLOBAL.players = JSON.parse(obj);
       drawPlayers()
     });
+
+
     function drawSTAGE(){
 
       MAP = OBJ_MANAGER.createMap("solidBlocksLayer");

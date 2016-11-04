@@ -4,13 +4,13 @@
   "description": "game",
   "main": "app.js",
   "dependencies": {
-    "canvas-objects": "^0.1.0",
     "express": "^4.14.0",
-    "jade": "^1.11.0",
+    "pug": "*",
     "redis": "^2.6.3",
-    "socket.io": "^1.4.8"
+    "socket.io": "^1.4.8",
+    "GitRepo": "git+https://github.com/Joker9090/interactiveObjects"
   },
-  "devDependencies": {},
+  "devDependencies" : { },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -1,15 +1,8 @@
-
 var express = require('express');
 var path = require('path');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-
-var redis = require('redis'); // Install Redis  http://redis.io/topics/quickstart
-var client = redis.createClient("6379", "127.0.0.1");
-
-
-var canvasObject = require("canvas-objects");
 
 
 //Logs tunned
@@ -22,34 +15,30 @@ function makeFolder(folderName){
   return __dirname + folderName
 }
 
-server = makeFolder("/server")
+controllers = makeFolder("/server/controllers/")
+services = makeFolder("/server/services/")
 views = makeFolder("/html/views")
 _public = makeFolder("/html/public")
 //folders
 
-//set jade
-app.set('view engine', 'jade'); // set templating jade
+//set pug
+app.set('view engine', 'pug'); // set templating pug
 app.set('views', views); // ruta base de las vistas
 app.set('view options', { layout: false }); // layout default activado
-//set jade
+//set pug
 
-//socket io calls and returns
-var socketCalls = require( server + '/socketCalls.js' );
-//socket io calls and returns
+//Services
+var socketCalls = require( services + 'SocketCalls.js' );
+//Services
 
-//Redis Calls
-var redisCalls = require( server + '/redisCalls.js' );
-//Redis Calls
-
-//ObjectWorld Calls
-var worldCalls = require( server + '/worldCalls.js' );
-//ObjectWorld Calls
+//Controllers
+var Application = require( controllers + 'Application.js' );
+//Controllers
 
 var connections = [];
 
-var controllers = require( server + '/controllers.js' );  // por ahora estan todos los controllers en 1
 var routes = require(makeFolder('/routes.js')); // simulacion de route file
-routes.set({controllers: controllers})
+routes.set(Application)
 
 app.use("/html/public", express.static(path.join(_public))); // armado estatico de contenido en carpeta public
 
@@ -57,12 +46,7 @@ app.get('*', function(req, res){
   routes.makeRoute(req, res) // procesa el request
 });
 
-CanvasObjects = canvasObject.CanvasObjects();
-base = redisCalls.setRedis(client);
-world = worldCalls.setWorld(CanvasObjects)
-
-socketCalls.getCalls(io,base,world);
-
+socketCalls.getCalls(io);
 
 port = 3003; // puerto para escuchar
 http.listen(port, function(){

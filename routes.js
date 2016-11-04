@@ -1,7 +1,7 @@
-var controllers;
+var Application;
 module.exports = {
   set: function(o){
-    controllers = o.controllers; // seteo del objeto controller
+    Application = o;
   },
   makeRoute: function(req, res){
     // console.log(req)
@@ -9,7 +9,7 @@ module.exports = {
     switch (req.originalUrl) {
       case "/":
         switch (req.method) {
-          case "GET": controllers.getIndex(res);
+          case "GET": Application.clientDraw(res);
           break;
           case "POST":
 
@@ -17,9 +17,9 @@ module.exports = {
           default:
         }
       break;
-      case "/index2":
+      case "/serverDraw":
         switch (req.method) {
-          case "GET": controllers.getIndex2(res);
+          case "GET": Application.serverDraw(res);
           break;
           case "POST":
 
