@@ -40,10 +40,11 @@ function start(){
       console.clog("STAGE READY")
       window.GLOBAL.stage = JSON.parse(obj);
       drawSTAGE()
+      socket.emit('/addPlayer');
     });
-    socket.on('/setPlayer',function(obj){
-      console.clog("PLAYER READY")
-      window.GLOBAL.players = JSON.parse(obj);
+    socket.on('/getPlayers',function(objs){
+      console.log(objs)
+      window.GLOBAL.players = JSON.parse(objs);
       drawPlayers()
     });
 
