@@ -97,7 +97,15 @@ module.exports = {
         startPosX: 400,
         startPosY: 0,
         focusPosX: 0,
-        focusPosY: 0
+        focusPosY: 0,
+        YContactFunction: function(otherObj,direction){
+          if(otherObj.name.indexOf("Player") > -1){
+            if(direction == 'down') {
+              otherObj.posX = 0
+              otherObj.posY = 500
+            }
+          }
+        }
       }
       PLAYERS[PLAYERS.length] = CO.createObject(player);
       fn(id)
