@@ -161,6 +161,17 @@ CanvasObjects = function(canvas){
     // return co_self.canvas.c.height - y - h
   };
 
+  co_self.drawPosX = function(obj){
+    if(obj.type == "mapObjectNotFocused") return obj.posX
+    return (co_self.focusXEnabled) ? (!obj.focus_x) ? obj.posX - co_self.focusedObject.posX + co_self.focusedObject.startPosX : obj.startPosX : obj.posX;
+
+  };
+  co_self.drawPosY = function(obj){
+    if(obj.type == "mapObjectNotFocused") return co_self.fixHeightInvert(obj.posY,obj.height)
+    return  (co_self.focusYEnabled) ? (!obj.focus_x) ? co_self.fixHeightInvert(obj.posY - co_self.focusedObject.posY + co_self.focusedObject.startPosY) : co_self.fixHeightInvert(obj.startPosY) : co_self.fixHeightInvert(obj.posY);
+  };
+
+
   co_self.createObject = function(type){
     co_self._mapsimageTotals++;
     _object = {
@@ -269,8 +280,8 @@ CanvasObjects = function(canvas){
     co_self.objectsByLayer[_object.layer][co_self.objectsByLayer[_object.layer].length] = _object;
 
 
-    _object.startPosX = _object.posX
-    _object.startPosY = _object.posY
+    // _object.startPosX = _object.posX
+    // _object.startPosY = _object.posY
     return _object;
   }
 
@@ -285,14 +296,25 @@ CanvasObjects = function(canvas){
     for (var i = 0; i < co_self.objectsByLayer[l].length; i++) {
       if(co_self.objectsByLayer[l][i].id == id) co_self.objectsByLayer[l] = co_self.objectsByLayer[l].slice(i,1);
     }
-
   }
 
-
-  co_self.setXFocus = function(obj){
-    o = co_self.getAllObjects()
+  co_self.setGlobalXFocus = function(obj,o){
+    o = (typeof o == undefined ) ? co_self.getAllObjects() : o;
     co_self.focusXEnabled = true;
     for (var i = 0; i < o.length; i++) {
+      o[i].focus_x = false;
+    }
+    co_self.focusedObject = obj;
+    obj.focus_x = true;
+    obj.focusPosX = obj.posX;
+  }
+
+  co_self.setXFocus = function(obj){
+    o = co_self.getAllObjects() ;
+    co_self.focusXEnabled = true;
+    for (var i = 0; i < o.length; i++) {
+      o[i].startPosX = o[i].posX
+
       if((o[i].id == obj.id)){
         o[i].focus_x = true;
         co_self.focusedObject = obj;
@@ -307,10 +329,11 @@ CanvasObjects = function(canvas){
     obj.focus_x = false;
   }
 
-  co_self.setYFocus = function(obj){
-    o = co_self.getAllObjects()
+  co_self.setYFocus = function(obj,o){
+    o = co_self.getAllObjects();
     co_self.focusYEnabled = true;
     for (var i = 0; i < o.length; i++) {
+      o[i].startPosY = o[i].posY
       if((o[i].id == obj.id)){
         o[i].focus_y = true;
         co_self.focusedObject = obj;

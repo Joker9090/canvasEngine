@@ -31,63 +31,111 @@ function start(){
     CC.showFps = true;
 
     OBJ_MANAGER = new CanvasObjects(CC.canvas);
-    CC.objectsToDraw = OBJ_MANAGER.getAllObjects;
+    CC.objectsToDraw = getAllObjects;
     window.GLOBAL = {};
-
+    window.GLOBAL.players = [];
+    window.GLOBAL.stage = [];
     socket.emit('/playerReady');
     console.clog("START")
+
+    socket.on('/getMyPlayer',function(n){
+      ME = n;
+    });
+
     socket.on('/setStage',function(obj){
       console.clog("STAGE READY")
       window.GLOBAL.stage = JSON.parse(obj);
-      drawSTAGE()
+      drawSTAGE();
       socket.emit('/addPlayer');
     });
     socket.on('/getPlayers',function(objs){
-      console.log(objs)
-      window.GLOBAL.players = JSON.parse(objs);
-      drawPlayers()
+      window.GLOBAL.players = objs;
+      drawPlayers();
     });
 
+    function getAllObjects(){
+      objs = [];
+      if(typeof window.GLOBAL.stage.staticBlocks != "undefined") {
+        if(window.GLOBAL.stage.staticBlocks instanceof Array) objs =  objs.concat(window.GLOBAL.stage.staticBlocks)
+      }
+      if(typeof window.GLOBAL.players != "undefined") {
+        if(window.GLOBAL.players instanceof Array) objs =  objs.concat(window.GLOBAL.players)
+      }
+      return objs;
+    }
+
+    function loadImg(obj, fn){
+      obj.img = new Image();
+      obj.img.onload = function(obj){
+        fn(obj);
+      }(obj)
+      obj.img.src = obj.spriteFile;
+    }
 
     function drawSTAGE(){
-
-      MAP = OBJ_MANAGER.createMap("solidBlocksLayer");
-      MAP.setLayer(1);
-      MAP.setType("objects");
-
       for (var i = 0; i < window.GLOBAL.stage.staticBlocks.length; i++) {
-        window.GLOBAL.stage.staticBlocks[i] = OBJ_MANAGER.createObject(window.GLOBAL.stage.staticBlocks[i]);
-
-        window.GLOBAL.stage.staticBlocks[i].setImgSrc(window.GLOBAL.stage.staticBlocks[i].spriteFile,function(a){
+        loadImg(window.GLOBAL.stage.staticBlocks[i],function(a){
           window.GLOBAL.stage.staticBlocks[i].draw = function(){
             CC.canvas.ctx.drawImage(
-              a.img,
-              a.startSpriteX,
-              a.startSpriteY,
-              a.endSpriteX,
-              a.endSpriteY,
-              a.drawPosX(),
-              a.drawPosY(),
-              a.width,
-              a.height
+              this.img,
+              this.startSpriteX,
+              this.startSpriteY,
+              this.endSpriteX,
+              this.endSpriteY,
+              OBJ_MANAGER.drawPosX(this),
+              OBJ_MANAGER.drawPosY(this),
+              this.width,
+              this.height
             );
           }
         })
-        MAP.addObject(window.GLOBAL.stage.staticBlocks[i]);
       }
     }
 
     function drawPlayers(){
+
+
       for (var i = 0; i < window.GLOBAL.players.length; i++) {
-        window.GLOBAL.players[i] = OBJ_MANAGER.createObject(window.GLOBAL.players[i]);
-        console.log(window.GLOBAL.players[i])
         window.GLOBAL.players[i].draw = function(){
           CC.canvas.ctx.fillStyle = "white";
-          CC.canvas.ctx.fillRect(this.drawPosX(),this.drawPosY(),this.width,this.height)
+          CC.canvas.ctx.fillRect(
+            OBJ_MANAGER.drawPosX(this),
+            OBJ_MANAGER.drawPosY(this),
+            this.width,
+            this.height
+          )
           CC.canvas.ctx.fillStyle = "black";
         }
       }
+
+      if(typeof ME != "undefined"){
+        OBJ_MANAGER.setGlobalXFocus(window.GLOBAL.players[ME],getAllObjects())
+
+      }
+
+      // console.log(OBJ_MANAGER.focusedObject)
     }
+
+
+    CE = new CanvasEvents(CC.canvas.c);
+
+    up =    { keyCode  : 38, function : jump, delay : 500, block: true }
+    function jump() { socket.emit('/jump'); }
+    CE.addKeyEvent(up);
+
+    left =  { keyCode  : 37, function : leftMove, delay : 20 }
+    up =    { keyCode  : 38, function : jump, delay : 500, block: true }
+    right = { keyCode  : 39, function : rightMove, delay : 20 }
+
+    function leftMove() { socket.emit('/left'); }
+
+    function jump() { socket.emit('/jump'); }
+
+    function rightMove() { socket.emit('/right');}
+
+    CE.addKeyEvent(left);
+    CE.addKeyEvent(right);
+    CE.addKeyEvent(up);
 
   });
 

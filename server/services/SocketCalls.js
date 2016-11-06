@@ -10,14 +10,37 @@ module.exports = {
         console.clog("Sending Stage1")
         worldCalls.getStage("01",function(stage){
           socket.emit('/setStage',stage);
-        })
-      });
-      socket.on('/addPlayer' , function(){
-        worldCalls.addPlayer(function(){
           worldCalls.getPlayers(function(players){
-            socket.emit('/getPlayers',players);
+            io.emit('/getPlayers',players);
           })
         })
+
+      });
+
+
+
+      setInterval(function(){
+        worldCalls.getPlayers(function(players){
+          io.emit('/getPlayers',players);
+        })
+      },10)
+
+      socket.on('/addPlayer' , function(){
+        worldCalls.addPlayer(socket.id,function(number){
+          socket.emit('/getMyPlayer',number);
+        })
+      });
+
+      socket.on('/jump' , function(){
+        worldCalls.jumpPlayer(socket.id)
+      });
+
+      socket.on('/left' , function(){
+        worldCalls.leftPlayer(socket.id)
+      });
+
+      socket.on('/right' , function(){
+        worldCalls.rightPlayer(socket.id)
       });
     });
 
