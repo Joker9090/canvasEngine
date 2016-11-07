@@ -43,9 +43,9 @@ function joinGame(room){
   socket.on("/setRoomStage",function(stage){
     window.GLOBAL.stage = JSON.parse(stage);
     drawSTAGE();
-    setInterval(function(){
-      socket.emit('/getRoomPlayers');
-    },10)
+    // setInterval(function(){
+    //   socket.emit('/getAllPlayersInRoom');
+    // },10)
   })
 
   LOADER.load("Sincronizando jugadores",true)
@@ -55,12 +55,32 @@ function joinGame(room){
   })
 
   socket.on('/getMyPlayer',function(n){
-    console.log(n)
     ME = n;
   });
 
+  CE = new CanvasEvents(CC.canvas.c);
+
+  up =    { keyCode  : 38, function : jump, delay : 500, block: true }
+  function jump() { socket.emit('/jump'); }
+  CE.addKeyEvent(up);
+
+  left =  { keyCode  : 37, function : leftMove, delay : 20 }
+  up =    { keyCode  : 38, function : jump, delay : 500, block: true }
+  right = { keyCode  : 39, function : rightMove, delay : 20 }
+
+  function leftMove() { socket.emit('/left'); }
+
+  function jump() { socket.emit('/jump'); }
+
+  function rightMove() { socket.emit('/right');}
+
+  CE.addKeyEvent(left);
+  CE.addKeyEvent(right);
+  CE.addKeyEvent(up);
 
 }
+
+
 
 
 function getAllObjects(){
@@ -103,7 +123,6 @@ function drawSTAGE(){
 }
 
 function drawPlayers(){
-
   for (var i = 0; i < window.GLOBAL.players.length; i++) {
     window.GLOBAL.players[i].draw = function(){
       CC.canvas.ctx.fillStyle = "white";
@@ -117,8 +136,7 @@ function drawPlayers(){
     }
   }
 
-  if(typeof ME != "undefined"){
-    console.log(window.GLOBAL.players[ME])
+  if(typeof ME != "undefined" && typeof window.GLOBAL.players[ME] != "undefined"){
     OBJ_MANAGER.setGlobalXFocus(window.GLOBAL.players[ME],getAllObjects())
   }
 

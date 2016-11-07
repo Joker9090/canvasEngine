@@ -7,7 +7,7 @@ init_redis = function(){
 }();
 
 module.exports = {
-  getPlayerID: function(fn){
+  getPlayerID: function(room,fn){
     client.get("playerID",function(err, id){
       client.set("playerID",parseInt(id)+1)
       fn(id);
