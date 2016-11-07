@@ -4,44 +4,48 @@ module.exports = {
     console.slog("Setting socketIo calls")
     // BASE = base;
     io.on('connection', function(socket) {
+
+      socket.on('/getInstructions',function(){
+        console.slog("Sending Instructions")
+        socket.emit('/sendInstructions',"showMenu");
+      });
+      socket.on('/joinGame',function(room){
+        console.slog("Join Player to room "+room)
+        worldCalls.addPlayerToRoom(socket.id,room,function(number){
+          worldCalls.getStage("01",function(stage){
+            console.slog("Sending roomStage "+room)
+            socket.emit('/setRoomStage',stage);
+          });
+          worldCalls.getRoomPlayers(socket.id,function(players){
+            io.emit('/setRoomPlayers',players);
+          })
+
+          worldCalls.getPlayerId(socket.id,function(number){
+            io.emit('/getMyPlayer',number);
+          });
+
+        })
+      });
+      socket.on('/getRoomPlayers',function(){
+        worldCalls.getRoomPlayers(socket.id,function(players){
+          io.emit('/setRoomPlayers',players);
+        })
+      })
+
       socket.emit('/start');
 
-      socket.on('/playerReady' , function(){
-        console.clog("Sending Stage1")
-        worldCalls.getStage("01",function(stage){
-          socket.emit('/setStage',stage);
-          worldCalls.getPlayers(function(players){
-            io.emit('/getPlayers',players);
-          })
-        })
+      // socket.on('/jump' , function(){
+      //   worldCalls.jumpPlayer(socket.id)
+      // });
+      //
+      // socket.on('/left' , function(){
+      //   worldCalls.leftPlayer(socket.id)
+      // });
+      //
+      // socket.on('/right' , function(){
+      //   worldCalls.rightPlayer(socket.id)
+      // });
 
-      });
-
-
-
-      setInterval(function(){
-        worldCalls.getPlayers(function(players){
-          io.emit('/getPlayers',players);
-        })
-      },10)
-
-      socket.on('/addPlayer' , function(){
-        worldCalls.addPlayer(socket.id,function(number){
-          socket.emit('/getMyPlayer',number);
-        })
-      });
-
-      socket.on('/jump' , function(){
-        worldCalls.jumpPlayer(socket.id)
-      });
-
-      socket.on('/left' , function(){
-        worldCalls.leftPlayer(socket.id)
-      });
-
-      socket.on('/right' , function(){
-        worldCalls.rightPlayer(socket.id)
-      });
     });
 
   }

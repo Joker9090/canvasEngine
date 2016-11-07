@@ -17,6 +17,26 @@ module.exports = {
           default:
         }
       break;
+      case "/game":
+        switch (req.method) {
+          case "GET": Application.game(res);
+          break;
+          case "POST":
+
+          break;
+          default:
+        }
+      break;
+      case "/getMenu":
+        switch (req.method) {
+          case "GET": Application.getMenu(res);
+          break;
+          case "POST":
+
+          break;
+          default:
+        }
+      break;
       case "/serverDraw":
         switch (req.method) {
           case "GET": Application.serverDraw(res);
