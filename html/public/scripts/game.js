@@ -18,43 +18,41 @@ function showMenu(){
 }
 
 function setWorld(){
+
+
+
   CC = new CanvasController(document.getElementById("canvas"))
   CC.showFps = true;
 
-  OBJ_MANAGER = new CanvasObjects(CC.canvas);
+  CO = CanvasObjects()
+  COM = []
+  COM[0] = new CO.CanvasObjectsManager(CC.canvas);
+
   CC.objectsToDraw = getAllObjects;
   window.GLOBAL = {};
   window.GLOBAL.players = [];
   window.GLOBAL.stage = [];
-  LOADER.load("Armando mundo",true)
 }
 
 function joinGame(room){
   document.getElementById("menu").remove();
   socket.emit("/joinGame",room)
 
-  LOADER.setItemsToLoad(["Armando mundo","Armando escenario","Sincronizando jugadores"])
-  LOADER.make();
-
   setWorld();
 
-
-  LOADER.load("Armando escenario",true)
   socket.on("/setRoomStage",function(stage){
+    console.clog("Stage Builded")
     window.GLOBAL.stage = JSON.parse(stage);
     drawSTAGE();
-    // setInterval(function(){
-    //   socket.emit('/getAllPlayersInRoom');
-    // },10)
   })
 
-  LOADER.load("Sincronizando jugadores",true)
   socket.on("/setRoomPlayers",function(players){
     window.GLOBAL.players = players;
     drawPlayers();
   })
 
   socket.on('/getMyPlayer',function(n){
+    console.clog("Get My Player")
     ME = n;
   });
 
@@ -112,8 +110,8 @@ function drawSTAGE(){
           this.startSpriteY,
           this.endSpriteX,
           this.endSpriteY,
-          OBJ_MANAGER.drawPosX(this),
-          OBJ_MANAGER.drawPosY(this),
+          COM[0].drawPosX(this),
+          COM[0].drawPosY(this),
           this.width,
           this.height
         );
@@ -127,17 +125,18 @@ function drawPlayers(){
     window.GLOBAL.players[i].draw = function(){
       CC.canvas.ctx.fillStyle = "white";
       CC.canvas.ctx.fillRect(
-        OBJ_MANAGER.drawPosX(this),
-        OBJ_MANAGER.drawPosY(this),
+        COM[0].drawPosX(this),
+        COM[0].drawPosY(this),
         this.width,
         this.height
       )
       CC.canvas.ctx.fillStyle = "black";
     }
   }
-
   if(typeof ME != "undefined" && typeof window.GLOBAL.players[ME] != "undefined"){
-    OBJ_MANAGER.setGlobalXFocus(window.GLOBAL.players[ME],getAllObjects())
+    COM[0].setXFocus(window.GLOBAL.players[ME]);
+    // COM[0].setYFocus(window.GLOBAL.players[ME]);
+    COM[0].setGlobalXFocus(window.GLOBAL.players[ME],getAllObjects())
   }
 
 }

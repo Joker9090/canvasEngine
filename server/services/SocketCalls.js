@@ -13,38 +13,27 @@ module.exports = {
 
       socket.on('/joinGame',function(room){
         console.slog("Join Player to room "+room)
-
-        worldCalls.addPlayerToRoom(socket.id,room,function(number){
-          connections[connections.length] = socket.id
-          worldCalls.getStage("01",function(stage){
-            console.slog("Sending roomStage "+room)
-            socket.emit('/setRoomStage',stage);
-
-
-
+        worldCalls.getStage("01",function(stage){
+          console.slog("Sending roomStage "+room)
+          socket.emit('/setRoomStage',stage);
+          worldCalls.addPlayerToRoom(socket.id,room,function(number){
             worldCalls.getPlayer(socket.id,function(pos){
               socket.emit('/getMyPlayer',pos);
+              connections[connections.length] = socket.id
             });
-
-          });
-
-          worldCalls.getRoomPlayers(socket.id,function(players){
-            socket.emit('/setRoomPlayers',players);
           })
-
-
-        })
-
+        });
       });
-      setInterval(function(){
-        for (var i = 0; i < connections.length; i++) {
-          worldCalls.getRoomPlayers(connections[i],function(players){
-            socket.to(connections[i]).emit('/setRoomPlayers',players);
-          })
-        }
-      },10)
 
-      socket.emit('/start');
+      setInterval(function(){
+        if(connections.length > 0){
+          for (var i = 0; i < connections.length; i++) {
+            worldCalls.getRoomPlayers(connections[i],function(players){
+              socket.to(connections[i]).emit('/setRoomPlayers',players);
+            })
+          }
+        }
+      },15)
 
       socket.on('/jump' , function(){
         worldCalls.jumpPlayer(socket.id)

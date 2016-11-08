@@ -3,40 +3,36 @@ var redisCalls = require('../database/RedisCalls.js' );
 var canvasObject = require("interactiveObjects");
 init = function(){
   // CO = canvasObject.CanvasObjects();
-  CO = [];
-  CO[0] = new canvasObject.CanvasObjects();
-  CO[1] = new canvasObject.CanvasObjects();
-  PLAYERSBYROOM = [];
-  PLAYERSBYROOM[0] = [];
-  PLAYERSBYROOM[1] = [];
-  MAPBYROOM = [];
-  MAPBYROOM[0] = [];
-  MAPBYROOM[1] = [];
-  FORCESBYROOM = [];
-  FORCESBYROOM[0] = [];
-  FORCESBYROOM[1] = [];
+  COM = [];
+  COM[0] = new canvasObject.CanvasObjectsManager();
+  COM[1] = new canvasObject.CanvasObjectsManager();
+
 }();
 function startGameInRoom(room){
   console.slog("Setting Object World for Room "+room)
-  MAPBYROOM[room] = CO[room].createMap("backMap");
+  COM[room].MAPBYROOM[0] = COM[room].createMap("backMap");
   getFile("data/stages/01.json",function(obj){
     obj = JSON.parse(obj)
     for (var i = 0; i < obj.staticBlocks.length; i++) {
-      obj.staticBlocks[i] = CO[room].createObject(obj.staticBlocks[i])
-      MAPBYROOM[room].addObject(obj.staticBlocks[i]);
+      obj.staticBlocks[i].room = room
+      obj.staticBlocks[i] = COM[room].createObject(obj.staticBlocks[i])
+      COM[room].MAPBYROOM[0].addObject(obj.staticBlocks[i]);
     }
 
     console.slog("Setting Gravity in room "+room)
-    FORCESBYROOM[room][0] = CO[room].startGravity(0);
-    FORCESBYROOM[room][0].setGravity(9.8)
+    COM[room].FORCESBYROOM[0] = COM[room].startGravity(0);
+    COM[room].FORCESBYROOM[0].setGravity(9.8)
 
     console.slog("Setting xForces in room "+room)
-    FORCESBYROOM[room][0] = CO[room].startXFORCES(0);
+    COM[room].FORCESBYROOM[1] = COM[room].startXFORCES(0);
 
   });
 }
+
+
 startGameInRoom(0)
 startGameInRoom(1)
+
 function prepareObjectsToSend(objs){
   makeobject = function(o){
     newObject = {
@@ -77,6 +73,7 @@ function prepareObjectsToSend(objs){
   }
 }
 
+
 module.exports = {
   addPlayerToRoom: function(socketId,room,fn){
 
@@ -84,6 +81,7 @@ module.exports = {
       player = {
         name: 'Player-'+id,
         playerId:id,
+        room: room,
         socketId:socketId,
         posX: 0,
         layer:0,
@@ -100,7 +98,7 @@ module.exports = {
         focusPosX: 0,
         focusPosY: 0
         }
-      PLAYERSBYROOM[room][PLAYERSBYROOM[room].length] = CO[room].createObject(player);
+      COM[room].PLAYERSBYROOM[COM[room].PLAYERSBYROOM.length] = COM[room].createObject(player);
       console.slog("Add Player "+id+" to room "+room);
       fn(id)
     })
@@ -114,7 +112,7 @@ module.exports = {
 
   getRoomPlayers: function(socketId,fn){
     getPlayerBySocket(socketId,function(obj,pos){
-      fn(prepareObjectsToSend( PLAYERSBYROOM[obj.room] ))
+      fn( prepareObjectsToSend(COM[obj.room].PLAYERSBYROOM) )
     })
   },
 
@@ -145,10 +143,10 @@ module.exports = {
 }
 
 function getPlayerBySocket(socketId,fn){
-  for (var i = 0; i < PLAYERSBYROOM.length; i++) {
-    for (var k = 0; k < PLAYERSBYROOM[i].length; k++) {
-      if(PLAYERSBYROOM[i][k].socketId == socketId){
-        fn(PLAYERSBYROOM[i][k],k);
+  for (var i = 0; i < COM.length; i++) {
+    for (var k = 0; k < COM[i].PLAYERSBYROOM.length; k++) {
+      if(COM[i].PLAYERSBYROOM[k].socketId == socketId){
+        fn(COM[i].PLAYERSBYROOM[k],k);
         return true;
       }
     }

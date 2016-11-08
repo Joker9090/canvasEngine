@@ -19,27 +19,25 @@ function start(){
   };
   doInResizeFunctions[doInResizeFunctions.length] = makeContentGoodAgain
   makeContentGoodAgain();
-  var socket = io();
-  socket.on('/start', function(){
-    console.slog("Socket io On");
-  });
 
   extraScript.callAsyncScript(["b_canvas","b_canvasObjects","b_canvasEvents"],function(){
     console.clog("Correctly Load Scripts libs");
 
+
     CC = new CanvasController(document.getElementById("canvas"))
     CC.showFps = true;
 
-    OBJ_MANAGER = new CanvasObjects(CC.canvas);
-    CC.objectsToDraw = OBJ_MANAGER.getAllObjects;
+    CO = CanvasObjects()
 
+    COM = []
+    COM[0] = new CO.CanvasObjectsManager(CC.canvas);
 
-    MAP = OBJ_MANAGER.createMap("backMap");
-    MAP.setType("objects");
-    MAP.setViewportY(200);
-    MAP.setViewportX(200);
-    MAP.layer = 0;
+    COM[0].MAPBYROOM[0] = COM[0].createMap("backMap");
+    COM[0].MAPBYROOM[0].layer = 0;
 
+    setInterval(function(){
+      CC.objectsToDraw = COM[0].getAllObjects();
+    },10)
 
     cloudBlock = Array();
     createCloud = function(x,y,ac){
@@ -58,13 +56,10 @@ function start(){
          startSpriteY: 0,
          endSpriteX: 288,
          endSpriteY: 144,
-         windSpeed: ac,
-         remove: function(){
-           OBJ_MANAGER.getObjectById(this.id).canDraw = 0
-         }
+         windSpeed: ac
       }
       last = tempOpts.blockId
-      cloudBlock[last] = OBJ_MANAGER.createObject(tempOpts);
+      cloudBlock[last] = COM[0].createObject(tempOpts);
       cloudBlock[last].setImgSrc("html/public/img/cloud.png",function(a){
         cloudBlock[last].draw = function(){
           if(a.posX > CC.width) a.remove()
@@ -75,15 +70,15 @@ function start(){
             a.startSpriteY,
             a.endSpriteX,
             a.endSpriteY,
-            a.drawPosX(MAP.posX),
-            a.drawPosY(MAP.posY),
+            a.drawPosX(),
+            a.drawPosY(),
             a.width,
             a.height
             );
           }
         }
       })
-      MAP.addObject(cloudBlock[last]);
+      COM[0].MAPBYROOM[0].addObject(cloudBlock[last]);
     }
 
     createCloudInterval = setInterval(function(){
@@ -93,12 +88,9 @@ function start(){
     },500)
 
     //FloorGrass
+    COM[0].MAPBYROOM[1] = COM[0].createMap("solidMap");
 
-    MAP2 = OBJ_MANAGER.createMap("solidMap");
-    MAP2.setLayer(1);
-    MAP2.setType("objects");
-    MAP2.setViewportY(200);
-    MAP2.setViewportX(200);
+    COM[0].MAPBYROOM[1].setLayer(1);
 
     grassBlocks = Array();
     for (var i = 0; i < 18; i++) {
@@ -116,7 +108,7 @@ function start(){
         endSpriteX: 60,
         endSpriteY: 50
       }
-      grassBlocks[i] = OBJ_MANAGER.createObject(tempOpts);
+      grassBlocks[i] = COM[0].createObject(tempOpts);
 
       grassBlocks[i].setImgSrc("html/public/img/textures.png",function(a){
         grassBlocks[i].draw = function(){
@@ -126,14 +118,14 @@ function start(){
             a.startSpriteY,
             a.endSpriteX,
             a.endSpriteY,
-            a.drawPosX(MAP2.posX),
-            a.drawPosY(MAP2.posY),
+            a.drawPosX(),
+            a.drawPosY(),
             a.width,
             a.height
           );
         }
       })
-      MAP2.addObject(grassBlocks[i]);
+      COM[0].MAPBYROOM[1].addObject(grassBlocks[i]);
 
     }
 
@@ -153,7 +145,7 @@ function start(){
         endSpriteX: 60,
         endSpriteY: 60
       }
-      grassBlocks1[i] = OBJ_MANAGER.createObject(tempOpts1);
+      grassBlocks1[i] = COM[0].createObject(tempOpts1);
 
       grassBlocks1[i].setImgSrc("html/public/img/textures.png",function(a){
         grassBlocks1[i].draw = function(){
@@ -163,14 +155,14 @@ function start(){
             a.startSpriteY,
             a.endSpriteX,
             a.endSpriteY,
-            a.drawPosX(MAP2.posX),
-            a.drawPosY(MAP2.posY),
+            a.drawPosX(),
+            a.drawPosY(),
             a.width,
             a.height
           );
         }
       })
-      MAP2.addObject(grassBlocks1[i]);
+      COM[0].MAPBYROOM[1].addObject(grassBlocks1[i]);
 
     }
     MEOpt = {
@@ -185,24 +177,23 @@ function start(){
       // wind_resistence: 5,
       solid:1,
       static:0,
-      XContactFunction: function(otherObj,direction){
-        console.log(otherObj.name+" "+direction)
-      },
-      YContactFunction: function(otherObj,direction){
-        console.log(otherObj.name+" "+direction)
-      }
+      // XContactFunction: function(otherObj,direction){
+      //   console.log(otherObj.name+" "+direction)
+      // },
+      // YContactFunction: function(otherObj,direction){
+      //   console.log(otherObj.name+" "+direction)
+      // }
     };
 
-    ME = OBJ_MANAGER.createObject(MEOpt);
+    ME = COM[0].createObject(MEOpt);
     ME.draw = function(){
       CC.canvas.ctx.fillStyle = "white";
       CC.canvas.ctx.fillRect(ME.drawPosX(),ME.drawPosY(),ME.width,ME.height)
       CC.canvas.ctx.fillStyle = "black";
     }
 
-    OBJ_MANAGER.setXFocus(ME);
-    OBJ_MANAGER.setYFocus(ME);
-
+    COM[0].setXFocus(ME);
+    COM[0].setYFocus(ME);
 
     personOpt2 = {
       name:"person2",
@@ -217,7 +208,7 @@ function start(){
       static:0
     };
 
-    person2 = OBJ_MANAGER.createObject(personOpt2);
+    person2 = COM[0].createObject(personOpt2);
 
     person2.draw = function(){
       CC.canvas.ctx.fillStyle = "white";
@@ -226,16 +217,13 @@ function start(){
     }
 
 
-    WIND1 = OBJ_MANAGER.startWind(0);
-    WIND1.setWindForce(0.2);
 
-    OBJ_MANAGER.startXFORCES(1);
+    COM[0].FORCESBYROOM[0] = COM[0].startXFORCES(1);
+    COM[0].FORCESBYROOM[1] = COM[0].startGravity(1);
+    COM[0].FORCESBYROOM[1].setGravity(9.8)
 
-    GRAVITY2 = OBJ_MANAGER.startGravity(1);
-    GRAVITY2.setGravity(9.8)
-
-    // ExtraForce = OBJ_MANAGER.startEXTRAFORCES(1,"x","constant")
-    // ExtraForce.setForce(0.3)
+    COM[0].FORCESBYROOM[2] = COM[0].startWind(0);
+    COM[0].FORCESBYROOM[2].setWindForce(0.2);
 
     CE = new CanvasEvents(CC.canvas.c);
 
